@@ -15,7 +15,6 @@ except (ImportError, OSError):
 class SolverSection:
     id: int
     name: str
-    student_count: int
     course_id: int
     faculty_id: int
     room_type_required: str  # 'Lecture' or 'Lab'
@@ -25,7 +24,6 @@ class SolverSection:
 class SolverRoom:
     id: int
     name: str
-    capacity: int
     type: str  # 'Lecture' or 'Lab'
 
 @dataclass
@@ -75,10 +73,6 @@ class SolverService:
                 for slot in timeslots:
                     # Pre-filter: Type Compatibility
                     if section.room_type_required != room.type:
-                        continue 
-                    
-                    # Pre-filter: Capacity Check
-                    if section.student_count > room.capacity:
                         continue 
 
                     x[(section.id, room.id, slot.id)] = self.model.NewBoolVar(
@@ -159,12 +153,10 @@ class SolverService:
             sections_by_faculty[s.faculty_id].append(s)
 
         def is_valid(section, room, slot):
-            # 1. Capacity
-            if section.student_count > room.capacity: return False
-            # 2. Type
+            # 1. Type
             if section.room_type_required != room.type: return False
             
-            # 3. Room Conflict
+            # 2. Room Conflict
             for s_id, (r_id, sl_id) in assignments.items():
                 if r_id == room.id and sl_id == slot.id:
                     return False

@@ -1,0 +1,29 @@
+{
+    "shifts": [
+        {
+            "name": "Morning Shift",
+            "start": "08:00",
+            "end": "16:00",
+            "lunch": {
+                "start": "12:00",
+                "end": "13:00"
+            }
+        },
+        {
+            "name": "Evening Shift",
+            "start": "10:00",
+            "end": "18:00",
+            "lunch": {
+                "start": "13:00",
+                "end": "14:00"
+            }
+        }
+    ],
+    "working_days": [
+        0,
+        1,
+        2,
+        3,
+        4
+    ]
+}

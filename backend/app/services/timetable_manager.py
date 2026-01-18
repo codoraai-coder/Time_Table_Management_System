@@ -39,14 +39,13 @@ class TimetableManager:
             solver_sections.append(SolverSection(
                 id=s.id,
                 name=s.name,
-                student_count=s.student_count,
                 course_id=s.course_id,
                 faculty_id=faculty_id,
                 room_type_required="Lecture" 
             ))
             
         solver_rooms = [
-            SolverRoom(id=r.id, name=r.name, capacity=r.capacity, type=r.type)
+            SolverRoom(id=r.id, name=r.name, type=r.type)
             for r in rooms
         ]
         

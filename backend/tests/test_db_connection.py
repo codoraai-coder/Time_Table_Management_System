@@ -81,8 +81,9 @@ def test_database_connection():
     # Create all tables
     print("\n3. Creating database tables...")
     try:
+        Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
-        print("✓ All tables created successfully")
+        print("✓ All tables dropped and recreated successfully")
     except Exception as e:
         print(f"❌ Failed to create tables: {e}")
         sys.exit(1)
@@ -129,11 +130,11 @@ def test_database_connection():
             session.add(faculty)
             
             # Create sample course
-            course = Course(code="CS101", name="Introduction to Programming", credits=4)
+            course = Course(code="CS101", name="Introduction to Programming")
             session.add(course)
             
             # Create sample room
-            room = Room(name="Room-101", capacity=50, type="Lecture")
+            room = Room(name="Room-101", type="Lecture")
             session.add(room)
             
             # Create sample timeslot
