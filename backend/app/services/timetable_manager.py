@@ -9,6 +9,7 @@ from app.models import (
 from app.services.solver import (
     SolverService, SolverSection, SolverRoom, SolverTimeslot, SolverResult
 )
+from app.services.validator import ValidatorService, ValidationResult
 
 class TimetableManager:
     """
@@ -17,6 +18,7 @@ class TimetableManager:
     def __init__(self, db: Session):
         self.db = db
         self.solver = SolverService()
+        self.validator = ValidatorService()
 
     def generate_timetable(self, version_number: int = 1) -> Optional[TimetableVersion]:
         """
@@ -26,14 +28,37 @@ class TimetableManager:
         sections = self.db.execute(select(Section)).scalars().all()
         rooms = self.db.execute(select(Room)).scalars().all()
         timeslots = self.db.execute(select(Timeslot)).scalars().all()
+        faculty_all = self.db.execute(select(Faculty)).scalars().all()
         
+        # 2. Pre-Validation
+        # Convert DB models to dict for validator (simulating CSV input)
+        data_to_validate = {
+            "faculty": [{"id": f.id, "name": f.name, "email": f.email} for f in faculty_all],
+            "courses": [{"code": c.code, "name": c.name} for c in self.db.execute(select(Course)).scalars().all()],
+            "rooms": [{"name": r.name, "type": r.type} for r in rooms],
+            "sections": [
+                {"id": s.id, "course_code": s.course.code, "student_count": 30, "room_type": "Lecture"} # Defaults for now
+                for s in sections
+            ],
+            # This mapping logic needs better data in future
+            "faculty_course_map": [{"faculty_email": faculty_all[0].email, "section_id": sections[0].id}] if faculty_all and sections else []
+        }
+        
+        val_result = self.validator.validate_structure(data_to_validate)
+        if not val_result.is_valid:
+            print(f"❌ Validation Failed: {val_result.errors}")
+            return None
+        
+        if val_result.warnings:
+            print(f"⚠️ Validation Warnings: {val_result.warnings}")
+
+        # 3. Transform to Solver Model
         # In a real scenario, we'd have a mapping of which Faculty teaches which Section.
         # For this Phase 1 fulfillment, we'll assign the FIRST found faculty to all sections
         # to demonstrate the conflict logic.
         faculty = self.db.execute(select(Faculty)).scalars().first()
         faculty_id = faculty.id if faculty else 1
 
-        # 2. Transform to Solver Models
         solver_sections = []
         for s in sections:
             solver_sections.append(SolverSection(
