@@ -1,0 +1,21 @@
+# Core dependencies
+fastapi==0.99.1
+uvicorn[standard]==0.32.0
+python-dotenv==1.0.1
+
+# Database
+sqlalchemy==2.0.36
+psycopg[binary]==3.3.2
+alembic==1.14.0
+
+# Solver
+ortools>=9.11
+
+# Utilities
+pydantic<2.0.0
+# pydantic-settings removed (embedded in pydantic v1)
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
