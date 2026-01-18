@@ -63,7 +63,7 @@
 ### **Backend stack**
 
 * **FastAPI**  
-* **Postgres**  
+* **Postgres - Google Cloud SQL*  
 * **Redis \+ Celery/RQ** (async generation/repair jobs)  
 * **OR-Tools** (solver)  
 * Optional later: **WebSockets** for live updates
@@ -90,7 +90,7 @@ Important: **LLM doesn’t create the timetable.** Solver does.
 
 ### **Model choices (practical)**
 
-* LLM: OpenAI/Groq/Gemini (your preference)  
+* LLM: Gemini (your preference)  
 * Embeddings (optional): store faculty/course synonyms  
 * Store agent traces (for audits)
 
