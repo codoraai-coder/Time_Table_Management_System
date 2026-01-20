@@ -15,6 +15,11 @@ ortools>=9.11
 pydantic<2.0.0
 # pydantic-settings removed (embedded in pydantic v1)
 
+# Fuzzy Matching (for Normalization Agent)
+fuzzywuzzy==0.18.0
+# Note: python-Levenshtein is optional but speeds up fuzzy matching
+# On Windows with Python 3.13+, it may fail to compile; fuzzywuzzy works without it
+
 # Testing
 pytest==8.3.4
 pytest-asyncio==0.24.0
