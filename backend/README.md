@@ -1,125 +1,80 @@
-# Backend - Timetable Management System
+# Timetable Management System Backend
 
-Production-ready FastAPI backend for automated timetable generation.
+Welcome to the backend core of the Timetable Management System. This repository contains the data models, scheduling engine, and validation logic required to generate conflict-free college timetables.
 
-## Setup
+## 🛠️ Work Completed (Issues 1-4)
 
-### 1. Install Dependencies
+### 1. Core Data Models (Issue 1)
+We established a robust database foundation using **PostgreSQL (Neon)** and **SQLAlchemy**.
+- **Schema**: Defined models for `Faculty`, `Course`, `Section`, `Room`, `Timeslot`, and `Assignment`.
+- **Snapshots**: Implemented `TimetableVersion` to save immutable snapshots of generated timetables.
+- **Connection**: Fully verified database connectivity and table auto-creation.
 
-```bash
-cd backend
-pip install -r requirements.txt
+### 2. Validation Engine / Solver (Issue 2)
+The "Brain" of the system, powered by **Google OR-Tools CP-SAT**.
+- **Conflict Logic**: Guaranteed zero overlaps for Teachers, Rooms, and Student Sections.
+- **Hard Constraints**: Enforced room type matching (e.g., Labs only in Lab rooms) and faculty availability.
+- **Fallback Solver**: Developed a "Pure Python" solver to ensure the system works even if native C++ libraries are missing on the host machine.
+
+### 3. Input Contracts (Issue 3)
+Defined the "Law of the System"—the exact format for data uploads.
+- **Dual-Shift Support**: Configured two distinct shifts:
+  - **Morning**: 08:00 - 16:00 (Lunch: 12:00 - 13:00)
+  - **Evening**: 10:00 - 18:00 (Lunch: 13:00 - 14:00)
+- **Frozen Schemas**: Created official CSV templates for Faculty, Rooms, Courses, Sections, and Mappings.
+
+### 4. Input Validation Logic (Issue 4)
+The "Gatekeeper" service that stops bad data from reaching the solver.
+- **Structure**: Checks for missing headers or empty mandatory fields.
+- **Reference**: Ensures sections point to courses that actually exist.
+- **Logic**: Detects impossible schedules (e.g., 5 labs requested but 0 lab rooms provided).
+
+---
+
+## 📊 Sample Outputs
+
+### Example 1: Successful Timetable Generation
+When the solver runs successfully, it produces a structured assignment list:
+```json
+{
+  "version_id": 1,
+  "status": "FEASIBLE",
+  "assignments": [
+    {
+      "section": "CS-2024-A",
+      "faculty": "Dr. Smith",
+      "room": "Room-101",
+      "timeslot": "Monday 09:00 - 10:00"
+    },
+    {
+      "section": "ME-2024-B",
+      "faculty": "Prof. Jones",
+      "room": "Workshop-2",
+      "timeslot": "Monday 10:00 - 11:00"
+    }
+  ]
+}
 ```
 
-### 2. Configure Database
-
-Create a `.env` file in the `backend/` directory:
-
-```bash
-cp .env.example .env
+### Example 2: Validation Error Report
+If a user uploads a broken CSV, the **ValidatorService** outputs clear instructions:
+```json
+{
+  "is_valid": false,
+  "errors": [
+    "File 'faculty.csv' is missing mandatory column: 'email'",
+    "Section 'SEC-01' refers to unknown course code: 'MATH999'"
+  ],
+  "warnings": [
+    "Room 'Seminar-Hall' is registered but has no sessions assigned."
+  ]
+}
 ```
 
-Edit `.env` and add your Neon database URL:
+---
 
-```env
-DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/dbname?sslmode=require
-```
-
-### 3. Test Database Connection
-
-Run the test script to verify everything works:
-
-```bash
-python -m backend.tests.test_db_connection
-```
-
-This will:
-- ✅ Verify database connection
-- ✅ Create all tables
-- ✅ Insert sample data
-- ✅ Verify data retrieval
-
-## Project Structure
-
-```
-backend/
-├── app/
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── database.py          # Database configuration
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── base.py              # Base model & mixins
-│   │   ├── faculty.py           # Faculty model
-│   │   ├── course.py            # Course model
-│   │   ├── section.py           # Section model
-│   │   ├── room.py              # Room model
-│   │   ├── timeslot.py          # Timeslot model
-│   │   ├── assignment.py        # Assignment model
-│   │   └── timetable.py         # TimetableVersion model
-│   ├── services/                # Business logic (future)
-│   ├── api/                     # API routes (future)
-│   └── utils/                   # Utilities (future)
-├── tests/
-│   ├── __init__.py
-│   └── test_db_connection.py    # Database test script
-├── .env.example                 # Environment variables template
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
-```
-
-## Database Models
-
-### Core Entities
-- **Faculty**: Teachers/Professors
-- **Course**: Subjects (e.g., "Database Systems")
-- **Section**: Class groups (e.g., "CS-A", "CS-B")
-- **Room**: Physical classrooms/labs
-- **Timeslot**: Time periods (e.g., "Monday 9:00-10:00")
-
-### Relationships
-- **Assignment**: Links Section + Course + Faculty + Room + Timeslot
-- **TimetableVersion**: Immutable snapshots of complete timetables
-
-## Production Deployment
-
-### Environment Variables
-
-Set `DATABASE_URL` in your deployment platform:
-- **Vercel/Netlify**: Add in dashboard
-- **Docker**: Pass via `-e DATABASE_URL=...`
-- **Heroku**: `heroku config:set DATABASE_URL=...`
-
-### Database Migrations (Future)
-
-We'll use Alembic for schema migrations in production.
-
-## Development
-
-### Running Tests
-
-```bash
-pytest backend/tests/
-```
-
-### Code Quality
-
-```bash
-# Format code
-black backend/
-
-# Type checking
-mypy backend/
-```
-
-## Phase 1 - Data Foundation ✅
-
-- [x] Define core data models
-- [ ] Define input contracts (CSV/JSON schemas)
-- [ ] Build validation engine
-- [ ] Build normalization layer
-- [ ] Build CP-SAT solver
-
-## License
-
-Proprietary - Codora AI
+## 🚀 Getting Started
+1. **Environment**: Ensure you are using Python 3.11+.
+2. **Setup**: Run `pip install -r requirements.txt`.
+3. **Database**: Configure `DATABASE_URL` in your `.env` file.
+4. **Test**: Run `python tests/test_solver_logic.py` to verify the engine.
