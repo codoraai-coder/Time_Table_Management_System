@@ -35,7 +35,7 @@ class NormalizationSuggestionResponse(BaseModel):
     entity_type: str = Field(..., description="Entity type: faculty or course")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "cluster_id": 0,
                 "detected_names": ["Dr. Smith", "Dr. John Smith"],
@@ -70,7 +70,7 @@ class AnalyzeRequestAPI(BaseModel):
         return [name.strip() for name in v if name and name.strip()]
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "faculty_names": ["Dr. Smith", "Dr. John Smith", "smith, john"],
                 "course_names": ["DBMS LAB", "Database Lab"],
@@ -87,7 +87,7 @@ class AnalyzeResponseAPI(BaseModel):
     request_id: Optional[str] = Field(None, description="Optional tracking ID")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "faculty_suggestions": [
                     {
@@ -130,7 +130,7 @@ class ConfirmationRequestAPI(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "faculty_confirmations": {"0": "accepted"},
                 "course_confirmations": {"0": "accepted"}
@@ -152,7 +152,7 @@ class FinalMappingResponseAPI(BaseModel):
     version: int = Field(..., description="Mapping version number")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "final_faculty_mapping": {
                     "Dr. Smith": "Dr. John Smith",

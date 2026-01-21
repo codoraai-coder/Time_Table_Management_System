@@ -1,2 +1,28 @@
+# Environment Variables
 .env
+.env.local
+.env.*
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+env/
 __pycache__/
+*.py[cod]
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Project Specific (Local tests/docs)
+backend/tests/test_normalization_agent.py
+backend/NORMALIZATION_GUIDE.md
