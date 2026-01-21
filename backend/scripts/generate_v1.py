@@ -35,7 +35,7 @@ def run():
 
         # 2. Add realistic sample data
         faculty = Faculty(name="Dr. Smith", email="smith@university.edu")
-        course = Course(code="CS101", name="Intro to CS", credits=3)
+        course = Course(code="CS101", name="Intro to CS")
         db.add_all([faculty, course])
         db.flush()
 
@@ -43,9 +43,9 @@ def run():
         s1 = Section(name="CS101-Morning", student_count=30, course_id=course.id)
         s2 = Section(name="CS101-Afternoon", student_count=25, course_id=course.id)
         
-        # 2 rooms (one too small, one perfect)
-        r1 = Room(name="Small Lab", capacity=20, type="Lecture")
-        r2 = Room(name="Large Hall", capacity=100, type="Lecture")
+        # 2 rooms 
+        r1 = Room(name="Small Lab", type="Lecture")
+        r2 = Room(name="Large Hall", type="Lecture")
         
         # 2 timeslots
         t1 = Timeslot(day=0, start_time=time(9, 0), end_time=time(10, 0)) # Mon 9am

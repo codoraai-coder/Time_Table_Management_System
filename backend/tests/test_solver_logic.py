@@ -28,10 +28,10 @@ class TestSolverLogic(unittest.TestCase):
         """Test a simple scenario that should definitely work"""
         print("\nRunning test_feasible_scenario...")
         sections = [
-            SolverSection(id=1, name="CS101-A", student_count=30, room_type_required="Lecture", course_id=101, faculty_id=10)
+            SolverSection(id=1, name="CS101-A", room_type_required="Lecture", course_id=101, faculty_id=10)
         ]
         rooms = [
-            SolverRoom(id=1, name="Room 101", capacity=50, type="Lecture")
+            SolverRoom(id=1, name="Room 101", type="Lecture")
         ]
         timeslots = [
             SolverTimeslot(id=1, day=0, start_time="09:00", end_time="10:00")
@@ -42,34 +42,18 @@ class TestSolverLogic(unittest.TestCase):
         self.assertEqual(len(result.assignments), 1)
         print("✓ Feasible scenario passed")
 
-    def test_capacity_constraint(self):
-        """Test that solver respects room capacity"""
-        print("\nRunning test_capacity_constraint...")
-        sections = [
-            SolverSection(id=1, name="CS101-Large", student_count=100, room_type_required="Lecture", course_id=101, faculty_id=10)
-        ]
-        rooms = [
-            SolverRoom(id=1, name="Room Small", capacity=50, type="Lecture")
-        ]
-        timeslots = [
-            SolverTimeslot(id=1, day=0, start_time="09:00", end_time="10:00")
-        ]
-
-        result = self.solver_service.solve(sections, rooms, timeslots)
-        self.assertFalse(result.is_feasible)
-        print("✓ Capacity constraint passed (Infeasible as expected)")
 
     def test_faculty_conflict(self):
         """Test that a faculty cannot be in 2 places at once"""
         print("\nRunning test_faculty_conflict...")
         # 2 Sections, Same Faculty, Only 1 Timeslot available
         sections = [
-            SolverSection(id=1, name="CS101-A", student_count=30, room_type_required="Lecture", course_id=101, faculty_id=99),
-            SolverSection(id=2, name="CS101-B", student_count=30, room_type_required="Lecture", course_id=101, faculty_id=99)
+            SolverSection(id=1, name="CS101-A", room_type_required="Lecture", course_id=101, faculty_id=99),
+            SolverSection(id=2, name="CS101-B", room_type_required="Lecture", course_id=101, faculty_id=99)
         ]
         rooms = [
-            SolverRoom(id=1, name="Room 1", capacity=50, type="Lecture"),
-            SolverRoom(id=2, name="Room 2", capacity=50, type="Lecture")
+            SolverRoom(id=1, name="Room 1", type="Lecture"),
+            SolverRoom(id=2, name="Room 2", type="Lecture")
         ]
         timeslots = [
             SolverTimeslot(id=1, day=0, start_time="09:00", end_time="10:00")
@@ -83,10 +67,10 @@ class TestSolverLogic(unittest.TestCase):
         """Test that same input gives identical output"""
         print("\nRunning test_determinism...")
         # A slightly complex scenario where multiple valid solutions exist
-        sections = [SolverSection(id=1, name="A", student_count=10, room_type_required="Lecture", course_id=1, faculty_id=1)]
+        sections = [SolverSection(id=1, name="A", room_type_required="Lecture", course_id=1, faculty_id=1)]
         rooms = [
-            SolverRoom(id=1, name="R1", capacity=20, type="Lecture"),
-            SolverRoom(id=2, name="R2", capacity=20, type="Lecture")
+            SolverRoom(id=1, name="R1", type="Lecture"),
+            SolverRoom(id=2, name="R2", type="Lecture")
         ]
         timeslots = [SolverTimeslot(id=1, day=0, start_time="09:00", end_time="10:00")]
 
