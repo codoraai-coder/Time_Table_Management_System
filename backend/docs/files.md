@@ -35,6 +35,7 @@ Handles the connection logic to the PostgreSQL (Neon) database using SQLAlchemy.
 - `solver.py`: The computational engine. It uses OR-Tools (or a Python fallback) to solve the timetable puzzle without conflicts.
 - `timetable_manager.py`: The orchestrator. It fetches data from models, sends it to the solver, and saves the results.
 - `validator.py`: The "Gatekeeper." It checks if uploaded CSV files follow the system rules (Issue 4).
+- `import_service.py`: The "Normalizer." It cleans messy text and maps external names/emails to stable database IDs (Issue 5).
 
 ---
 
@@ -49,6 +50,7 @@ Contains sample `.csv` and `.json` files. Use these to understand exactly how st
 
 ### 📁 `scripts/`
 - `generate_v1.py`: A CLI script that populates the database with sample data and triggers the very first timetable generation.
+- `import_pipeline.py`: The "Ingestion Pipeline." A command-line tool that validates, cleans, and imports your CSV files into the database.
 
 ### 📁 `tests/`
 - `test_db_connection.py`: Verifies that Python can talk to the Neon database.
