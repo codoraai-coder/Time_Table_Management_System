@@ -8,8 +8,7 @@ class Room(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    capacity: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[str] = mapped_column(String, nullable=False)  # e.g., 'Lecture', 'Lab'
 
     def __repr__(self):
-        return f"<Room(id={self.id}, name='{self.name}', type='{self.type}', capacity={self.capacity})>"
+        return f"<Room(id={self.id}, name='{self.name}', type='{self.type}')>"

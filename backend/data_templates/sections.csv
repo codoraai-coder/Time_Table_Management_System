@@ -1,0 +1,4 @@
+id,course_code,student_count,room_type
+CS101-Morning,CS101,35,Lecture
+CS101-Afternoon,CS101,30,Lecture
+Lab-CS101-1,CS101,25,Lab
