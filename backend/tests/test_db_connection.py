@@ -126,15 +126,15 @@ def test_database_connection():
             print("✓ Cleaned up existing test data")
 
             # Create sample faculty
-            faculty = Faculty(name="Dr. John Smith", email="john.smith@example.com")
+            faculty = Faculty(code="F001", name="Dr. John Smith", email="john.smith@example.com")
             session.add(faculty)
             
             # Create sample course
-            course = Course(code="CS101", name="Introduction to Programming")
+            course = Course(code="CS101", name="Introduction to Programming", type="LECTURE")
             session.add(course)
             
             # Create sample room
-            room = Room(name="Room-101", type="Lecture")
+            room = Room(code="Room-101", type="Lecture", capacity=40)
             session.add(room)
             
             # Create sample timeslot
@@ -144,9 +144,9 @@ def test_database_connection():
             session.commit()
             
             print("✓ Sample data inserted successfully")
-            print(f"  - Faculty: {faculty.name} (ID: {faculty.id})")
+            print(f"  - Faculty: {faculty.name} (Code: {faculty.code})")
             print(f"  - Course: {course.code} (ID: {course.id})")
-            print(f"  - Room: {room.name} (ID: {room.id})")
+            print(f"  - Room: {room.code} (ID: {room.id})")
             print(f"  - Timeslot: Day {timeslot.day}, {timeslot.start_time}-{timeslot.end_time} (ID: {timeslot.id})")
             
     except Exception as e:

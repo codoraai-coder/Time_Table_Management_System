@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, ForeignKey
 from .base import Base, TimestampMixin
@@ -10,8 +11,8 @@ class Assignment(Base, TimestampMixin):
     section_id: Mapped[int] = mapped_column(ForeignKey("sections.id"), nullable=False)
     faculty_id: Mapped[int] = mapped_column(ForeignKey("faculty.id"), nullable=False)
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"), nullable=False)
-    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"), nullable=False)
-    timeslot_id: Mapped[int] = mapped_column(ForeignKey("timeslots.id"), nullable=False)
+    room_id: Mapped[Optional[int]] = mapped_column(ForeignKey("rooms.id"), nullable=True)     # Nullable: filled by solver
+    timeslot_id: Mapped[Optional[int]] = mapped_column(ForeignKey("timeslots.id"), nullable=True) # Nullable: filled by solver
 
     # Relationships
     section: Mapped["Section"] = relationship("Section")

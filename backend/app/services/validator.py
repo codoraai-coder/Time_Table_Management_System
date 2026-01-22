@@ -15,11 +15,11 @@ class ValidatorService:
     """
     
     REQUIRED_HEADERS = {
-        "faculty": ["id", "name", "email"],
-        "courses": ["code", "name"],
-        "rooms": ["name", "type"],
-        "sections": ["id", "course_code", "student_count", "room_type"],
-        "faculty_course_map": ["faculty_email", "section_id"]
+        "faculty": ["faculty_id", "name"],
+        "courses": ["course_id", "name", "type", "weekly_periods"],
+        "rooms": ["room_id", "capacity", "room_type"],
+        "sections": ["section_id", "dept", "program", "year", "sem", "shift", "student_count"],
+        "faculty_course_map": ["faculty_id", "course_id", "section_id"]
     }
 
     def validate_structure(self, data: Dict[str, List[Dict[str, Any]]]) -> ValidationResult:
@@ -51,34 +51,32 @@ class ValidatorService:
             return ValidationResult(False, errors, warnings, suggestions)
 
         # 2. Referential Integrity
-        faculty_emails = {f["email"] for f in data["faculty"]}
-        course_codes = {c["code"] for c in data["courses"]}
-        section_ids = {s["id"] for s in data["sections"]}
-        room_types = {r["type"] for r in data["rooms"]}
+        faculty_ids = {f["faculty_id"] for f in data["faculty"]}
+        course_ids = {c["course_id"] for c in data["courses"]}
+        section_ids = {s["section_id"] for s in data["sections"]}
+        room_types = {r["room_type"] for r in data["rooms"]}
 
-        # Check sections -> courses
-        for sec in data["sections"]:
-            if sec["course_code"] not in course_codes:
-                errors.append(f"Section '{sec['id']}' refers to unknown course code: '{sec['course_code']}'")
-
-        # Check mapping -> faculty & sections
+        # Check mapping -> faculty, courses & sections
         for mapping in data["faculty_course_map"]:
-            if mapping["faculty_email"] not in faculty_emails:
-                errors.append(f"Mapping refers to unknown faculty email: '{mapping['faculty_email']}'")
+            if mapping["faculty_id"] not in faculty_ids:
+                errors.append(f"Mapping refers to unknown faculty ID: '{mapping['faculty_id']}'")
+            if mapping["course_id"] not in course_ids:
+                errors.append(f"Mapping refers to unknown course ID: '{mapping['course_id']}'")
             if mapping["section_id"] not in section_ids:
                 errors.append(f"Mapping refers to unknown section ID: '{mapping['section_id']}'")
 
         # 3. Logical/Capacity-Related Checks
-        required_room_types = {s["room_type"] for s in data["sections"]}
+        # Validate that required room types behave correctly
+        required_room_types = {c["needs_room_type"] for c in data["courses"]}
         for rt in required_room_types:
             if rt not in room_types:
-                errors.append(f"Required room type '{rt}' is not available in any room. (Section needs it)")
+                warnings.append(f"Course requires room type '{rt}' but no such room exists.")
 
         # Orphan Sections (Warning)
         mapped_section_ids = {m["section_id"] for m in data["faculty_course_map"]}
         for s_id in section_ids:
             if s_id not in mapped_section_ids:
-                warnings.append(f"Section '{s_id}' has no faculty assigned. It will not be scheduled.")
+                warnings.append(f"Section '{s_id}' has no courses assigned. It will not be scheduled.")
 
         # Suggestions
         if len(data["rooms"]) < (len(data["sections"]) / 5):

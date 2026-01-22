@@ -19,29 +19,29 @@ class ImportService:
         return cleaned.upper() if uppercase else cleaned
 
     def process_faculty(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
-        """Imports faculty, unifying by email."""
+        """Imports faculty, unifying by code (faculty_id)."""
         count = 0
         logs = []
         for item in items:
+            raw_id = item.get("faculty_id", "")
             raw_name = item.get("name", "")
-            raw_email = item.get("email", "")
             
-            clean_email = self.normalize_text(raw_email, uppercase=True)
+            clean_code = self.normalize_text(raw_id, uppercase=True)
             clean_name = self.normalize_text(raw_name)
             
             if mock:
-                logs.append(f"[Mock Faculty] '{raw_name}' normalized to '{clean_name}' (Email: {clean_email})")
+                logs.append(f"[Mock Faculty] '{clean_name}' (ID: {clean_code})")
                 count += 1
                 continue
 
-            # Entity Resolution by Email
-            existing = self.db.execute(select(Faculty).where(Faculty.email == clean_email)).scalar_one_or_none()
+            existing = self.db.execute(select(Faculty).where(Faculty.code == clean_code)).scalar_one_or_none()
             
             if existing:
                 if existing.name != clean_name:
-                    logs.append(f"[Faculty] Unified '{clean_name}' into existing '{existing.name}' (Email: {clean_email})")
+                    logs.append(f"[Faculty] Updated name for '{clean_code}' from '{existing.name}' to '{clean_name}'")
+                    existing.name = clean_name
             else:
-                new_f = Faculty(name=clean_name, email=clean_email)
+                new_f = Faculty(code=clean_code, name=clean_name)
                 self.db.add(new_f)
                 count += 1
         
@@ -50,29 +50,42 @@ class ImportService:
         return count, logs
 
     def process_courses(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
-        """Imports courses, unifying by code."""
+        """Imports courses, unifying by course_id."""
         count = 0
         logs = []
         for item in items:
-            raw_code = item.get("code", "")
+            raw_id = item.get("course_id", "")
             raw_name = item.get("name", "")
+            raw_type = item.get("type", "LECTURE")
+            try:
+                raw_periods = int(item.get("weekly_periods", 3))
+            except:
+                raw_periods = 3
+            raw_room_req = item.get("needs_room_type", "LECTURE")
             
-            clean_code = self.normalize_text(raw_code, uppercase=True)
+            clean_code = self.normalize_text(raw_id, uppercase=True)
             clean_name = self.normalize_text(raw_name)
             
             if mock:
-                logs.append(f"[Mock Course] '{raw_name}' normalized to '{clean_name}' (Code: {clean_code})")
+                logs.append(f"[Mock Course] '{clean_name}' (ID: {clean_code})")
                 count += 1
                 continue
 
-            # Entity Resolution by Code
             existing = self.db.execute(select(Course).where(Course.code == clean_code)).scalar_one_or_none()
             
             if existing:
-                if existing.name != clean_name:
-                    logs.append(f"[Course] Unified '{clean_name}' into existing '{existing.name}' (Code: {clean_code})")
+                existing.name = clean_name
+                existing.type = raw_type
+                existing.weekly_periods = raw_periods
+                existing.needs_room_type = raw_room_req
             else:
-                new_c = Course(code=clean_code, name=clean_name)
+                new_c = Course(
+                    code=clean_code, 
+                    name=clean_name,
+                    type=raw_type,
+                    weekly_periods=raw_periods,
+                    needs_room_type=raw_room_req
+                )
                 self.db.add(new_c)
                 count += 1
         
@@ -81,29 +94,41 @@ class ImportService:
         return count, logs
 
     def process_rooms(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
-        """Imports rooms, unifying by name."""
+        """Imports rooms, unifying by room_id."""
         count = 0
         logs = []
         for item in items:
-            raw_name = item.get("name", "")
-            raw_type = item.get("type", "Lecture")
+            raw_id = item.get("room_id", "")
+            raw_block = item.get("block", "")
+            raw_no = item.get("room_no", "")
+            try:
+                raw_cap = int(item.get("capacity", 30))
+            except:
+                raw_cap = 30
+            raw_type = item.get("room_type", "LECTURE")
             
-            clean_name = self.normalize_text(raw_name, uppercase=True)
-            clean_type = self.normalize_text(raw_type)
+            clean_code = self.normalize_text(raw_id, uppercase=True)
             
             if mock:
-                logs.append(f"[Mock Room] '{raw_name}' normalized to '{clean_name}' (Type: {clean_type})")
+                logs.append(f"[Mock Room] '{clean_code}' (Cap: {raw_cap})")
                 count += 1
                 continue
 
-            existing = self.db.execute(select(Room).where(Room.name == clean_name)).scalar_one_or_none()
+            existing = self.db.execute(select(Room).where(Room.code == clean_code)).scalar_one_or_none()
             
             if existing:
-                if existing.type != clean_type:
-                    logs.append(f"[Room] Updated type for '{clean_name}' to '{clean_type}'")
-                    existing.type = clean_type
+                existing.type = raw_type
+                existing.capacity = raw_cap
+                existing.block = raw_block
+                existing.room_no = raw_no
             else:
-                new_r = Room(name=clean_name, type=clean_type)
+                new_r = Room(
+                    code=clean_code, 
+                    capacity=raw_cap, 
+                    type=raw_type,
+                    block=raw_block,
+                    room_no=raw_no
+                )
                 self.db.add(new_r)
                 count += 1
         
@@ -112,42 +137,91 @@ class ImportService:
         return count, logs
 
     def process_sections(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
-        """Imports sections, linking to internal Course IDs."""
+        """Imports sections."""
         count = 0
         logs = []
         
-        # Pre-cache Course IDs for mapping
-        if not mock:
-            courses = self.db.execute(select(Course)).scalars().all()
-            course_map = {c.code: c.id for c in courses}
-        else:
-            course_map = {} # Empty for mock
-        
         for item in items:
-            raw_id = item.get("id", "")
-            raw_course = item.get("course_code", "")
+            raw_id = item.get("section_id", "")
+            raw_name = item.get("section_name", "")
+            raw_dept = item.get("dept", "")
+            raw_prog = item.get("program", "")
+            try:
+                raw_year = int(item.get("year", 1))
+            except:
+                raw_year = 1
+            raw_sem = item.get("sem", "")
+            raw_shift = item.get("shift", "")
+            try:
+                raw_count = int(item.get("student_count", 0))
+            except:
+                raw_count = 0
             
-            clean_name = self.normalize_text(raw_id, uppercase=True)
-            clean_course = self.normalize_text(raw_course, uppercase=True)
+            clean_code = self.normalize_text(raw_id, uppercase=True)
             
             if mock:
-                logs.append(f"[Mock Section] '{raw_id}' linked to Course '{clean_course}'")
+                logs.append(f"[Mock Section] '{clean_code}'")
                 count += 1
                 continue
 
-            c_id = course_map.get(clean_course)
-            if not c_id:
-                continue # Should be caught by validator
-                
-            existing = self.db.execute(select(Section).where(Section.name == clean_name)).scalar_one_or_none()
+            existing = self.db.execute(select(Section).where(Section.code == clean_code)).scalar_one_or_none()
             
             if existing:
-                existing.course_id = c_id
+                existing.student_count = raw_count
+                existing.shift = raw_shift
             else:
-                new_s = Section(name=clean_name, course_id=c_id)
+                new_s = Section(
+                    code=clean_code,
+                    name=raw_name,
+                    dept=raw_dept,
+                    program=raw_prog,
+                    year=raw_year,
+                    sem=raw_sem,
+                    shift=raw_shift,
+                    student_count=raw_count
+                )
                 self.db.add(new_s)
                 count += 1
         
         if not mock:
             self.db.commit()
+        return count, logs
+    
+    def process_assignments(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
+        """Imports faculty assignments (Faculty-Course-Section map)."""
+        count = 0
+        logs = []
+        
+        if mock:
+            return len(items), [f"[Mock Assignment] Processed {len(items)} mappings"]
+
+        from app.models import Assignment
+
+        # Pre-cache IDs
+        fac_map = {f.code: f.id for f in self.db.execute(select(Faculty)).scalars().all()}
+        course_map = {c.code: c.id for c in self.db.execute(select(Course)).scalars().all()}
+        sec_map = {s.code: s.id for s in self.db.execute(select(Section)).scalars().all()}
+
+        for item in items:
+            f_code = self.normalize_text(item.get("faculty_id"), uppercase=True)
+            c_code = self.normalize_text(item.get("course_id"), uppercase=True)
+            s_code = self.normalize_text(item.get("section_id"), uppercase=True)
+            
+            if f_code not in fac_map or c_code not in course_map or s_code not in sec_map:
+                logs.append(f"[Error] Assignment skipped: Unknown entity (F:{f_code}, C:{c_code}, S:{s_code})")
+                continue
+            
+            # Check duplicates?
+            # ideally we just insert.
+            new_assign = Assignment(
+                faculty_id=fac_map[f_code],
+                course_id=course_map[c_code],
+                section_id=sec_map[s_code],
+                room_id=None, # To be solved
+                timeslot_id=None # To be solved
+            )
+            self.db.add(new_assign)
+            count += 1
+            
+        self.db.commit()
         return count, logs
