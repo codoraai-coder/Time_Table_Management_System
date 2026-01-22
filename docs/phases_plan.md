@@ -96,10 +96,10 @@ Before solver:
 
 ---
 
-## PHASE 2 — Core Timetable Solver (Week 2)
+## PHASE 2 — Core Solver, Export & Basic UI (Week 2)
 
 ### Goal
-Generate a **guaranteed valid timetable**.
+Generate a **guaranteed valid timetable**, export it to Excel, and provide a basic UI.
 
 ### 4️⃣ Hard Constraints (Never Violated)
 
@@ -110,6 +110,11 @@ Generate a **guaranteed valid timetable**.
 - Room type matches course type
 - Faculty max load per day
 - Shift timing respected
+
+### 5️⃣ Output & Access (Accelerated from Phase 4)
+- **Excel Export:** Generate `Even Sem...xlsx` format.
+- **Upload UI:** Admin interface for raw data.
+- **Timetable Viewer:** Read-only grid view.
 
 ---
 

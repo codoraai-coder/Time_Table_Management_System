@@ -7,8 +7,11 @@ class Room(Base, TimestampMixin):
     __tablename__ = "rooms"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    type: Mapped[str] = mapped_column(String, nullable=False)  # e.g., 'Lecture', 'Lab'
+    code: Mapped[str] = mapped_column(String, unique=True, nullable=False) # e.g. AB_101
+    block: Mapped[str] = mapped_column(String, nullable=True)
+    room_no: Mapped[str] = mapped_column(String, nullable=True)
+    capacity: Mapped[int] = mapped_column(Integer, nullable=False, default=30)
+    type: Mapped[str] = mapped_column(String, nullable=False)  # e.g., 'LECTURE', 'LAB'
 
     def __repr__(self):
-        return f"<Room(id={self.id}, name='{self.name}', type='{self.type}')>"
+        return f"<Room(id={self.id}, code='{self.code}', type='{self.type}', capacity={self.capacity})>"

@@ -24,3 +24,5 @@ fuzzywuzzy==0.18.0
 pytest==8.3.4
 pytest-asyncio==0.24.0
 httpx==0.28.1
+pydantic[email]
+python-multipart
