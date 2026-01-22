@@ -18,7 +18,10 @@ class SolverSection:
     course_id: int
     faculty_id: int
     room_type_required: str  # 'Lecture' or 'Lab'
-    # Future: valid_room_ids
+    required_periods: int
+    allowed_slot_ids: List[int]
+    is_lab: bool = False
+    fixed_assignments: Optional[List[Dict[str, int]]] = None # List of {"room_id": int, "timeslot_id": int}
 
 @dataclass
 class SolverRoom:
@@ -30,7 +33,7 @@ class SolverRoom:
 class SolverTimeslot:
     id: int
     day: int
-    start_time: str # Simplified for debug
+    start_time: str 
     end_time: str
 
 @dataclass
@@ -45,9 +48,8 @@ class SolverService:
         if _ORTOOLS_AVAILABLE:
             self.model = cp_model.CpModel()
             self.solver = cp_model.CpSolver()
-            # Determinism settings
             self.solver.parameters.random_seed = 42
-            self.solver.parameters.num_search_workers = 1  # Single thread for determinism
+            self.solver.parameters.num_search_workers = 1 
         else:
             self.model = None
             self.solver = None
@@ -58,79 +60,160 @@ class SolverService:
         rooms: List[SolverRoom],
         timeslots: List[SolverTimeslot]
     ) -> SolverResult:
-        """
-        Main entry point to generate timetable.
-        """
         if not _ORTOOLS_AVAILABLE:
             return self._solve_fallback(sections, rooms, timeslots)
 
+        # 0. Build Timeslot Metadata
+        # Map (day, start_time) -> slot_id for consecutive check
+        slot_map = {(t.day, t.start_time): t.id for t in timeslots}
+        # Map slot_id -> (day, end_time) to find what comes next
+        next_slot_lookup = {}
+        for t in timeslots:
+            # If there's a slot on the same day that starts when this one ends
+            following_slot_id = slot_map.get((t.day, t.end_time))
+            if following_slot_id:
+                next_slot_lookup[t.id] = following_slot_id
+
         # 1. Variables
-        # x[section_id, room_id, timeslot_id] -> 1 if assigned, 0 otherwise
+        # x[section_id, period_idx, room_id, timeslot_id]
         x = {}
         
         for section in sections:
-            for room in rooms:
-                for slot in timeslots:
-                    # Pre-filter: Type Compatibility
+            for p_idx in range(section.required_periods):
+                for room in rooms:
                     if section.room_type_required != room.type:
-                        continue 
-
-                    x[(section.id, room.id, slot.id)] = self.model.NewBoolVar(
-                        f'x_{section.id}_{room.id}_{slot.id}'
-                    )
+                        continue
+                    
+                    for slot_id in section.allowed_slot_ids:
+                        x[(section.id, p_idx, room.id, slot_id)] = self.model.NewBoolVar(
+                            f'x_{section.id}_{p_idx}_{room.id}_{slot_id}'
+                        )
 
         # 2. Hard Constraints
 
-        # C1: Each section must be assigned exactly ONE room and ONE timeslot
+        # C1: Every period of every section must be assigned exactly once
         for section in sections:
-            candidates = []
-            for room in rooms:
-                for slot in timeslots:
-                    if (section.id, room.id, slot.id) in x:
-                        candidates.append(x[(section.id, room.id, slot.id)])
-            
-            if not candidates:
-                # Basic check failed
-                return SolverResult(False, "INFEASIBLE_NO_CANDIDATES", [], f"Section {section.id} has no valid rooms (Type/Capacity mismatch)")
-            
-            self.model.Add(sum(candidates) == 1)
+            for p_idx in range(section.required_periods):
+                # If this period is fixed, we just enforce that specific variable to 1
+                if section.fixed_assignments and p_idx < len(section.fixed_assignments):
+                    fa = section.fixed_assignments[p_idx]
+                    fixed_key = (section.id, p_idx, fa["room_id"], fa["timeslot_id"])
+                    
+                    # We must ensure this variable was created (is in section.allowed_slot_ids)
+                    if fixed_key in x:
+                        self.model.Add(x[fixed_key] == 1)
+                    else:
+                        # If the fixed assignment is outside allowed slots, it's a conflict
+                        return SolverResult(False, "INFEASIBLE", [], f"Fixed assignment for {section.name} is in an invalid slot/room.")
+                    continue
+
+                candidates = []
+                for room in rooms:
+                    for slot_id in section.allowed_slot_ids:
+                        if (section.id, p_idx, room.id, slot_id) in x:
+                            candidates.append(x[(section.id, p_idx, room.id, slot_id)])
+                
+                if not candidates:
+                    return SolverResult(False, "INFEASIBLE", [], f"Section {section.name} (Period {p_idx}) has no valid candidates.")
+                
+                self.model.Add(sum(candidates) == 1)
+
+        # C1.1: Lab Consecutive Periods (2 periods, same room, same day, consecutive time)
+        for section in sections:
+            if section.is_lab and section.required_periods == 2:
+                for room in rooms:
+                    if section.room_type_required != room.type: 
+                        continue
+                    
+                    for slot_id in section.allowed_slot_ids:
+                        p0_key = (section.id, 0, room.id, slot_id)
+                        if p0_key in x:
+                            p0_var = x[p0_key]
+                            next_id = next_slot_lookup.get(slot_id)
+                            
+                            # Period 1 must be in the same room on the next slot
+                            p1_key = (section.id, 1, room.id, next_id) if next_id else None
+                            p1_var = x.get(p1_key)
+                            
+                            if p1_var is not None:
+                                # p0_var == 1 implies p1_var == 1
+                                self.model.Add(p1_var == 1).OnlyEnforceIf(p0_var)
+                            else:
+                                # If no next slot exists (e.g. end of day/shift), p0 cannot be assigned here
+                                self.model.Add(p0_var == 0)
 
         # C2: Room Conflict
         for room in rooms:
             for slot in timeslots:
-                potential_sections = []
+                room_slot_vars = []
                 for section in sections:
-                    if (section.id, room.id, slot.id) in x:
-                        potential_sections.append(x[(section.id, room.id, slot.id)])
+                    for p_idx in range(section.required_periods):
+                        if (section.id, p_idx, room.id, slot.id) in x:
+                            room_slot_vars.append(x[(section.id, p_idx, room.id, slot.id)])
                 
-                if potential_sections:
-                    self.model.Add(sum(potential_sections) <= 1)
+                if room_slot_vars:
+                    self.model.Add(sum(room_slot_vars) <= 1)
 
         # C3: Faculty Conflict
-        sections_by_faculty = {}
-        for section in sections:
-            if section.faculty_id not in sections_by_faculty:
-                sections_by_faculty[section.faculty_id] = []
-            sections_by_faculty[section.faculty_id].append(section)
-        
-        for faculty_id, fac_sections in sections_by_faculty.items():
+        faculties = {s.faculty_id for s in sections}
+        for f_id in faculties:
+            fac_sections = [s for s in sections if s.faculty_id == f_id]
             for slot in timeslots:
-                fac_assignments_at_slot = []
-                for section in fac_sections:
-                    for room in rooms:
-                        if (section.id, room.id, slot.id) in x:
-                            fac_assignments_at_slot.append(x[(section.id, room.id, slot.id)])
+                fac_slot_vars = []
+                for s in fac_sections:
+                    for p_idx in range(s.required_periods):
+                        for room in rooms:
+                            if (s.id, p_idx, room.id, slot.id) in x:
+                                fac_slot_vars.append(x[(s.id, p_idx, room.id, slot.id)])
                 
-                if fac_assignments_at_slot:
-                    self.model.Add(sum(fac_assignments_at_slot) <= 1)
+                if fac_slot_vars:
+                    self.model.Add(sum(fac_slot_vars) <= 1)
+
+        # C4: Student Group Conflict
+        section_groups = {}
+        for s in sections:
+            base_name = s.name.split('-')[0]
+            if base_name not in section_groups:
+                section_groups[base_name] = []
+            section_groups[base_name].append(s)
+        
+        for group_name, group_sections in section_groups.items():
+            for slot in timeslots:
+                group_slot_vars = []
+                for s in group_sections:
+                    for p_idx in range(s.required_periods):
+                        for room in rooms:
+                            if (s.id, p_idx, room.id, slot.id) in x:
+                                group_slot_vars.append(x[(s.id, p_idx, room.id, slot.id)])
+                
+                if group_slot_vars:
+                    self.model.Add(sum(group_slot_vars) <= 1)
+
+        # C5: Daily Subject Limit (Don't clump one subject on one day)
+        # Max 2 periods per day for the same section-subject
+        days = sorted(list({t.day for t in timeslots}))
+        for section in sections:
+            if section.is_lab: continue # Labs are already handled as 2 periods together
+            for day in days:
+                day_slots = [t.id for t in timeslots if t.day == day]
+                section_day_vars = []
+                for p_idx in range(section.required_periods):
+                    for room in rooms:
+                        if section.room_type_required != room.type: continue
+                        for slot_id in day_slots:
+                            if (section.id, p_idx, room.id, slot_id) in x:
+                                section_day_vars.append(x[(section.id, p_idx, room.id, slot_id)])
+                
+                if section_day_vars:
+                    self.model.Add(sum(section_day_vars) <= 2)
 
         # 3. Solve
         status = self.solver.Solve(self.model)
 
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             result_assignments = []
-            for (sec_id, room_id, slot_id), variable in x.items():
-                if self.solver.Value(variable) == 1:
+            for (sec_id, p_idx, room_id, slot_id), var in x.items():
+                if self.solver.Value(var) == 1:
                     result_assignments.append({
                         "section_id": sec_id,
                         "room_id": room_id,
