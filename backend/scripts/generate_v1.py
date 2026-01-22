@@ -1,7 +1,9 @@
 import sys
 import os
+import json
+from datetime import time
 
-# Robust path setup
+# Path setup
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, "../.."))
 if os.path.basename(project_root) == "backend":
@@ -14,60 +16,68 @@ load_dotenv()
 
 from app.core.database import SessionLocal
 from app.services.timetable_manager import TimetableManager
-from app.models import Faculty, Course, Section, Room, Timeslot, Assignment, TimetableVersion
-from datetime import time
-from sqlalchemy import delete
+from app.models import Timeslot, Assignment, TimetableVersion
+from sqlalchemy import text
+import traceback
 
 def run():
-    print("🚀 Starting Timetable Generation (V1)...")
+    print(">> Starting Timetable Generation (Production Mode)...")
     db = SessionLocal()
     try:
-        # 1. Cleanup old data
+        # 0. Test database connection
+        print("[*] Testing database connection...")
+        db.execute(text("SELECT 1"))
+        print("[ok] Database connection verified.")
+        # 1. Clear previous results (keep imported assignments as they are the schedule inputs)
         db.query(TimetableVersion).delete()
-        db.query(Assignment).delete()
-        db.query(Section).delete()
-        db.query(Room).delete()
-        db.query(Timeslot).delete()
-        db.query(Course).delete()
-        db.query(Faculty).delete()
         db.commit()
-        print("✓ Cleaned up database")
+        print("[ok] Cleared previous timetable versions.")
 
-        # 2. Add realistic sample data
-        faculty = Faculty(name="Dr. Smith", email="smith@university.edu")
-        course = Course(code="CS101", name="Intro to CS")
-        db.add_all([faculty, course])
-        db.flush()
-
-        # 2 sections for the same course
-        s1 = Section(name="CS101-Morning", student_count=30, course_id=course.id)
-        s2 = Section(name="CS101-Afternoon", student_count=25, course_id=course.id)
-        
-        # 2 rooms 
-        r1 = Room(name="Small Lab", type="Lecture")
-        r2 = Room(name="Large Hall", type="Lecture")
-        
-        # 2 timeslots
-        t1 = Timeslot(day=0, start_time=time(9, 0), end_time=time(10, 0)) # Mon 9am
-        t2 = Timeslot(day=0, start_time=time(10, 0), end_time=time(11, 0)) # Mon 10am
-        
-        db.add_all([s1, s2, r1, r2, t1, t2])
-        db.commit()
-        print("✓ Realistic sample data created")
+        # 2. Ensure Timeslots exist
+        slot_count = db.query(Timeslot).count()
+        if slot_count == 0:
+            print("(!) No timeslots found. Generating standard Mon-Fri (8:00 - 18:00) slots...")
+            slots_to_add = []
+            for day in range(5):  # Mon to Fri
+                for hour in range(8, 18):
+                    start = time(hour, 0)
+                    end = time(hour + 1, 0)
+                    slots_to_add.append(Timeslot(day=day, start_time=start, end_time=end))
+            db.add_all(slots_to_add)
+            db.commit()
+            print(f"[ok] Created {len(slots_to_add)} timeslots.")
 
         # 3. Run the Manager
         manager = TimetableManager(db)
         version = manager.generate_timetable(version_number=1)
 
         if version:
-            print(f"\n✨ SUCCESS! Timetable V1 Created.")
-            print(f"Snapshot Data: {json.dumps(version.snapshot_data, indent=2)}")
+            print(f"\n[ok] SUCCESS! Timetable V1 Created from imported data.")
+            
+            # Save output to a JSON file for the user
+            output_path = os.path.join(project_root, "backend/timetable_output.json")
+            with open(output_path, "w") as f:
+                json.dump(version.snapshot_data, f, indent=2)
+            print(f"[ok] Full JSON output saved to: backend/timetable_output.json")
+            
+            # Show a few sample assignments (grouped structure)
+            sections_dict = version.snapshot_data.get("sections", {})
+            if sections_dict:
+                print("\nSample Schedule (First Section):")
+                first_sec = list(sections_dict.keys())[0]
+                print(f"  Section: {first_sec}")
+                for day, sessions in sections_dict[first_sec].items():
+                    if sessions:
+                        print(f"    {day}: {len(sessions)} periods assigned")
         else:
-            print("\n❌ Failed to generate version 1.")
+            print("\n[!] Failed to generate timetable. Check validation logs or feasibility.")
 
+    except Exception as e:
+        print(f"[!] Error during generation: {e}")
+        print("\n[DEBUG] Full traceback:")
+        traceback.print_exc()
     finally:
         db.close()
 
 if __name__ == "__main__":
-    import json
     run()

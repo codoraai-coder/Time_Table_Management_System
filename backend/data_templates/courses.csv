@@ -1,4 +1,6 @@
-code,name
-CS101,Introduction to Computer Science
-MA101,Calculus I
-PH101,Physics for Engineers
+code,name,credits
+DBMS,Database Management Systems,4
+DBMS_LAB,Database Management Systems Lab,1
+OS,Operating Systems,4
+OS_LAB,Operating Systems Lab,1
+ML,Machine Learning,4

@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey
 from .base import Base, TimestampMixin
@@ -13,8 +14,8 @@ class Section(Base, TimestampMixin):
     program: Mapped[str] = mapped_column(String, nullable=True) # e.g. B.Tech
     year: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     sem: Mapped[str] = mapped_column(String, nullable=True) # e.g. Even
-    shift: Mapped[str] = mapped_column(String, nullable=True) # e.g. SHIFT_8_4
     student_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    shift: Mapped[str] = mapped_column(String, nullable=False, default="SHIFT_8_4")
 
     # Note: Removed direct course_id FK. Sections take multiple courses via Assignment table.
 
