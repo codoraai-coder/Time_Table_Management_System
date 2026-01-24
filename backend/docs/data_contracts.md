@@ -1,84 +1,124 @@
 # Data Contracts - Timetable Management System
 
-This document defines the official input schemas for the system. These contracts are frozen for Phase 1. All data uploaded by colleges must strictly adhere to these formats.
+This document defines the official input schemas for the system. The canonical sample files live in `backend/data_templates/`. The importer/validator will enforce these contracts and accepts a small set of header aliases for backward compatibility.
 
 ## CSV File Requirements
-- **Encoding**: UTF-8
-- **Delimiter**: Comma (`,`)
-- **Headers**: Required, must match the names exactly (case-sensitive).
+- Encoding: UTF-8
+- Delimiter: comma (`,`) 
+- Headers: required; use the canonical names below. The importer also accepts common aliases (documented per section).
+- Time format: `HH:MM-HH:MM` or `HH:MM - HH:MM` (24-hour). Whitespace is normalized.
 
 ---
 
-## 1. `faculty.csv`
-Defines the teaching staff available for scheduling.
+## 1) `faculty.csv`
+Canonical columns:
 
-| Column | Meaning | Data Type | Required | Constraints | Example |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `id` | Internal Unique ID | Integer | Yes | Positive, unique | `101` |
-| `name` | Full Name | String | Yes | Max 100 chars | `Dr. Alice Smith` |
-| `email` | Primary Email | String | Yes | Valid email format, unique | `alice@uni.edu` |
+- `id` (string): stable faculty identifier (e.g. `F_SHARMA`). Required, unique.
+- `name` (string): faculty full name. Required.
+- `email` (string): primary email. Required, valid email format, unique.
 
-## 2. `courses.csv`
-The catalog of subjects offered.
+Accepted alias: `code` → `id`.
 
-| Column | Meaning | Data Type | Required | Constraints | Example |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `code` | Unique Code | String | Yes | Alphanumeric, unique | `CS101` |
-| `name` | Course Title | String | Yes | Max 150 chars | `Intro to CS` |
+Example:
 
-## 3. `rooms.csv`
-Available physical venues.
-
-| Column | Meaning | Data Type | Required | Constraints | Example |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `name` | Room Number/Name | String | Yes | Unique | `Lab-301` |
-| `type` | Room Category | String | Yes | `Lecture` OR `Lab` | `Lab` |
-
-## 4. `sections.csv`
-Specific groups of students attending a course.
-
-| Column | Meaning | Data Type | Required | Constraints | Example |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `id` | Unique Section ID | String | Yes | Unique | `2024-CS-A` |
-| `course_code` | Linked Course | String | Yes | Must exist in `courses.csv` | `CS101` |
-| `student_count`| Current Strength | Integer | Yes | Minimum: 1 | `35` |
-| `room_type` | Required Venue | String | Yes | `Lecture` OR `Lab` | `Lecture` |
-
-## 5. `faculty_course_map.csv`
-Linking sections to instructors.
-
-| Column | Meaning | Data Type | Required | Constraints | Example |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `faculty_email`| Instructor | String | Yes | Must exist in `faculty.csv` | `alice@uni.edu` |
-| `section_id` | Assigned Section | String | Yes | Must exist in `sections.csv` | `2024-CS-A` |
+```
+F_SHARMA,A. SHARMA,F_SHARMA@college.edu
+```
 
 ---
 
-## 6. `time_config.json`
-Configuration for the weekly timetable structure.
+## 2) `courses.csv`
+Canonical columns:
 
-| Field | Meaning | Type | Required | Constraints |
-| :--- | :--- | :--- | :--- | :--- |
-| `working_days` | Active days of week | Array[Int] | Yes | 0 (Mon) to 6 (Sun) |
-| `slots_per_day`| Specific time blocks | Array[Obj] | Yes | Must contain `start`, `end` |
+- `code` (string): unique course code (e.g. `DBMS`, `DBMS_LAB`). Required, unique.
+- `name` (string): course title. Required.
+- `credits` (integer, optional): credit units.
 
-**Example:**
+Example:
+
+```
+DBMS,Database Management Systems,4
+```
+
+---
+
+## 3) `rooms.csv`
+Canonical columns:
+
+- `code` or `name` (string): unique room identifier (e.g. `AB_101`, `LAB_1`). Required, unique.
+- `type` (string): `Lecture` or `Lab` (case-insensitive). Required.
+- `capacity` (integer, optional): seating capacity.
+
+Importer notes: `name` is accepted as alias for `code` and normalized to `code` internally.
+
+Example:
+
+```
+AB_101,Lecture,60
+LAB_1,Lab,30
+```
+
+---
+
+## 4) `sections.csv`
+Canonical columns:
+
+- `id` (string): section identifier (e.g. `CSE_2A-DBMS`). Required, unique.
+- `course_code` (string): must reference `courses.code`. Required.
+- `student_count` (integer): required, >= 1.
+- `room_type` (string): `Lecture` or `Lab`. Required.
+- `shift` (string): one of `SHIFT_8_4` or `SHIFT_10_6`. Required.
+
+Accepted alias: `code` → `id`.
+
+Example:
+
+```
+CSE_2A-DBMS,DBMS,60,Lecture,SHIFT_8_4
+```
+
+---
+
+## 5) `faculty_course_map.csv` (mapping)
+Canonical/accepted columns:
+
+- `faculty_email` or `faculty_id` (string): identifies instructor. If email is provided it must match `faculty.email`; if id is provided it must match `faculty.id`.
+- `section_id` or `section` (string): section identifier; must match `sections.id`.
+- `course_code` (string, optional but recommended): must match `courses.code` when present.
+
+Example:
+
+```
+F_DAROS@college.edu,CSE_2A-DBMS,DBMS
+```
+
+---
+
+## 6) `time_config.json`
+JSON configuration describing shifts and working days. Required fields:
+
+- `shifts`: array of objects with `name`, `start`, `end`; each shift may include a `lunch` object with `start`/`end` times. Times MUST be `HH:MM` strings.
+- `working_days`: array of integers 0..6 (0 = Monday).
+
+Example:
+
 ```json
 {
   "shifts": [
-    {
-      "name": "Morning Shift",
-      "start": "08:00",
-      "end": "16:00",
-      "lunch": {"start": "12:00", "end": "13:00"}
-    },
-    {
-      "name": "Evening Shift",
-      "start": "10:00",
-      "end": "18:00",
-      "lunch": {"start": "13:00", "end": "14:00"}
-    }
+    { "name": "Morning", "start": "08:00", "end": "16:00", "lunch": { "start": "12:00", "end": "13:00" } },
+    { "name": "Evening", "start": "10:00", "end": "18:00", "lunch": { "start": "13:00", "end": "14:00" } }
   ],
-  "working_days": [0, 1, 2, 3, 4]
+  "working_days": [0,1,2,3,4]
 }
 ```
+
+---
+
+## Validation & Import rules (summary)
+
+- Required unique keys: `faculty.id` (or `faculty.email`), `courses.code`, `rooms.code`, `sections.id`.
+- Referential integrity: `sections.course_code` must exist in `courses`; mappings must resolve to existing faculty and sections.
+- Normalization: whitespace trimmed, case normalization for codes, time strings normalized (e.g. `08:00 - 09:00` → `08:00-09:00`).
+- Supported shifts: `SHIFT_8_4` → lunch `12:00-13:00`; `SHIFT_10_6` → lunch `13:00-14:00`.
+- If only header aliases differ (e.g. `code` vs `id`), importer accepts them; structure or missing required fields will produce validation errors and an import report.
+
