@@ -1,28 +1,46 @@
-# Core dependencies
-fastapi==0.99.1
-uvicorn[standard]==0.32.0
-python-dotenv==1.0.1
+# ============================================================================
+# Core Web Framework Dependencies
+# ============================================================================
+# Production-ready versions for Python 3.11 (tested Jan 2026)
+fastapi==0.109.0  # Compatible with Pydantic v2 - released Jan 2024
+uvicorn[standard]==0.40.0  # ASGI server with async support - released Dec 21, 2025
+python-multipart==0.0.21  # File upload parsing for FastAPI - released Dec 17, 2025
+httpx==0.28.1  # HTTP client for testing and internal requests - released Dec 6, 2024
 
-# Database
-sqlalchemy==2.0.36
-psycopg[binary]==3.3.2
-alembic==1.14.0
+# ============================================================================
+# Database & ORM
+# ============================================================================
+# All tested and compatible with Python 3.11
+sqlalchemy==2.0.46  # ORM and database toolkit - released Jan 21, 2026
+psycopg[binary]==3.3.2  # PostgreSQL adapter with pre-compiled C extensions
+alembic==1.14.0  # Database schema migrations and version control
 
-# Solver
-ortools>=9.11
+# ============================================================================
+# Configuration & Environment
+# ============================================================================
+python-dotenv==1.2.1  # Load environment variables from .env files - released Oct 26, 2025
+pydantic==2.12.5  # Data validation using Python type annotations - Pydantic v2 is production standard
+pydantic[email]  # Email validation support (included with main pydantic)
 
-# Utilities
-pydantic<2.0.0
-# pydantic-settings removed (embedded in pydantic v1)
+# ============================================================================
+# Constraint Solver
+# ============================================================================
+ortools>=9.11,<10.0  # Google OR-Tools for constraint satisfaction problem solving (version-pinned for stability)
 
-# Fuzzy Matching (for Normalization Agent)
-fuzzywuzzy==0.18.0
+# ============================================================================
+# Data Normalization & Fuzzy Matching
+# ============================================================================
+fuzzywuzzy==0.18.0  # Fuzzy string matching for normalization_agent
 # Note: python-Levenshtein is optional but speeds up fuzzy matching
-# On Windows with Python 3.13+, it may fail to compile; fuzzywuzzy works without it
+# On Windows with Python 3.11, it may fail to compile; fuzzywuzzy works without it
 
-# Testing
-pytest==8.3.4
-pytest-asyncio==0.24.0
-httpx==0.28.1
-pydantic[email]
-python-multipart
+# ============================================================================
+# Excel Export
+# ============================================================================
+openpyxl==3.1.5  # Create and manipulate Excel spreadsheets (.xlsx format) - latest available
+
+# ============================================================================
+# Testing & Development
+# ============================================================================
+pytest==8.3.4  # Unit testing framework
+pytest-asyncio==1.3.0  # Async test support for FastAPI - released Nov 10, 2025
