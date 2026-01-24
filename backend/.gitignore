@@ -49,6 +49,10 @@ htmlcov/
 *.sqlite
 *.sqlite3
 
+debug_gen.txt
+timetable_output.json
+rawData/
+
 # Local Uploads
 uploads/
 tmp/

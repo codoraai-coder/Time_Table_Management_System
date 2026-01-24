@@ -23,11 +23,15 @@ class ImportService:
         count = 0
         logs = []
         for item in items:
-            raw_id = item.get("faculty_id", "")
+            # Handle both 'id' (data_templates) and 'faculty_id' (rawData) column names
+            raw_id = item.get("id") or item.get("faculty_id", "")
             raw_name = item.get("name", "")
+            raw_email = item.get("email", "")
             
             clean_code = self.normalize_text(raw_id, uppercase=True)
             clean_name = self.normalize_text(raw_name)
+            # Convert empty string to None for email (to allow NULLs rather than empty strings)
+            clean_email = self.normalize_text(raw_email) if raw_email else None
             
             if mock:
                 logs.append(f"[Mock Faculty] '{clean_name}' (ID: {clean_code})")
@@ -41,7 +45,7 @@ class ImportService:
                     logs.append(f"[Faculty] Updated name for '{clean_code}' from '{existing.name}' to '{clean_name}'")
                     existing.name = clean_name
             else:
-                new_f = Faculty(code=clean_code, name=clean_name)
+                new_f = Faculty(code=clean_code, name=clean_name, email=clean_email)
                 self.db.add(new_f)
                 count += 1
         
@@ -54,20 +58,22 @@ class ImportService:
         count = 0
         logs = []
         for item in items:
-            raw_id = item.get("course_id", "")
+            # Handle both 'code' (data_templates) and 'course_id' (rawData) column names
+            raw_id = item.get("code") or item.get("course_id", "")
             raw_name = item.get("name", "")
             raw_type = item.get("type", "LECTURE")
+            # Handle both 'credits' (data_templates) and 'weekly_periods' (rawData) column names
             try:
-                raw_periods = int(item.get("weekly_periods", 3))
+                raw_credits = int(item.get("credits") or item.get("weekly_periods", 3))
             except:
-                raw_periods = 3
-            raw_room_req = item.get("needs_room_type", "LECTURE")
+                raw_credits = 3
+            raw_room_req = item.get("needs_room_type", raw_type)
             
             clean_code = self.normalize_text(raw_id, uppercase=True)
             clean_name = self.normalize_text(raw_name)
             
             if mock:
-                logs.append(f"[Mock Course] '{clean_name}' (ID: {clean_code})")
+                logs.append(f"[Mock Course] '{clean_name}' (ID: {clean_code}, Credits: {raw_credits})")
                 count += 1
                 continue
 
@@ -76,14 +82,14 @@ class ImportService:
             if existing:
                 existing.name = clean_name
                 existing.type = raw_type
-                existing.weekly_periods = raw_periods
+                existing.credits = raw_credits
                 existing.needs_room_type = raw_room_req
             else:
                 new_c = Course(
                     code=clean_code, 
                     name=clean_name,
                     type=raw_type,
-                    weekly_periods=raw_periods,
+                    credits=raw_credits,
                     needs_room_type=raw_room_req
                 )
                 self.db.add(new_c)
@@ -105,7 +111,8 @@ class ImportService:
                 raw_cap = int(item.get("capacity", 30))
             except:
                 raw_cap = 30
-            raw_type = item.get("room_type", "LECTURE")
+            # Handle both 'room_type' (data_templates) and 'type' (rawData) column names
+            raw_type = item.get("room_type") or item.get("type", "LECTURE")
             
             clean_code = self.normalize_text(raw_id, uppercase=True)
             
@@ -142,8 +149,10 @@ class ImportService:
         logs = []
         
         for item in items:
-            raw_id = item.get("section_id", "")
-            raw_name = item.get("section_name", "")
+            # Handle both 'id' (data_templates) and 'section_id' (rawData) column names
+            raw_id = item.get("id") or item.get("section_id", "")
+            # Handle both 'name' and 'section_name' column names
+            raw_name = item.get("name") or item.get("section_name", raw_id)
             raw_dept = item.get("dept", "")
             raw_prog = item.get("program", "")
             try:
@@ -151,7 +160,7 @@ class ImportService:
             except:
                 raw_year = 1
             raw_sem = item.get("sem", "")
-            raw_shift = item.get("shift", "")
+            raw_shift = item.get("shift", "SHIFT_8_4")
             try:
                 raw_count = int(item.get("student_count", 0))
             except:
@@ -160,15 +169,18 @@ class ImportService:
             clean_code = self.normalize_text(raw_id, uppercase=True)
             
             if mock:
-                logs.append(f"[Mock Section] '{clean_code}'")
+                logs.append(f"[Mock Section] '{clean_code}' (Shift: {raw_shift})")
                 count += 1
                 continue
 
             existing = self.db.execute(select(Section).where(Section.code == clean_code)).scalar_one_or_none()
             
             if existing:
+                existing.name = raw_name
                 existing.student_count = raw_count
                 existing.shift = raw_shift
+                existing.year = raw_year
+                existing.sem = raw_sem
             else:
                 new_s = Section(
                     code=clean_code,
@@ -186,7 +198,7 @@ class ImportService:
         if not mock:
             self.db.commit()
         return count, logs
-    
+
     def process_assignments(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
         """Imports faculty assignments (Faculty-Course-Section map)."""
         count = 0
@@ -197,31 +209,69 @@ class ImportService:
 
         from app.models import Assignment
 
-        # Pre-cache IDs
-        fac_map = {f.code: f.id for f in self.db.execute(select(Faculty)).scalars().all()}
+        # Pre-cache IDs by both email and code (for rawData format)
+        fac_email_map = {f.email: f.id for f in self.db.execute(select(Faculty)).scalars().all() if f.email}
+        fac_code_map = {f.code: f.id for f in self.db.execute(select(Faculty)).scalars().all()}
         course_map = {c.code: c.id for c in self.db.execute(select(Course)).scalars().all()}
         sec_map = {s.code: s.id for s in self.db.execute(select(Section)).scalars().all()}
 
         for item in items:
-            f_code = self.normalize_text(item.get("faculty_id"), uppercase=True)
-            c_code = self.normalize_text(item.get("course_id"), uppercase=True)
-            s_code = self.normalize_text(item.get("section_id"), uppercase=True)
+            # Handle both formats: data_templates uses faculty_email, rawData uses faculty_id
+            f_email = item.get("faculty_email", "")
+            f_code = item.get("faculty_id", "")
             
-            if f_code not in fac_map or c_code not in course_map or s_code not in sec_map:
-                logs.append(f"[Error] Assignment skipped: Unknown entity (F:{f_code}, C:{c_code}, S:{s_code})")
+            # Normalize and get faculty ID
+            fac_id = None
+            if f_email:
+                f_email = self.normalize_text(f_email)
+                fac_id = fac_email_map.get(f_email)
+            if not fac_id and f_code:
+                f_code = self.normalize_text(f_code, uppercase=True)
+                fac_id = fac_code_map.get(f_code)
+            
+            # Get course code and section code
+            # Handle both formats: data_templates uses just section_id, rawData has course_id
+            s_code = item.get("section_id", "")
+            c_code = item.get("course_id", "")
+            
+            s_code = self.normalize_text(s_code, uppercase=True)
+            c_code = self.normalize_text(c_code, uppercase=True)
+            
+            # Validate existence
+            if not fac_id:
+                logs.append(f"[Error] Assignment skipped: Unknown faculty (Email:{f_email}, Code:{f_code})")
                 continue
             
-            # Check duplicates?
-            # ideally we just insert.
-            new_assign = Assignment(
-                faculty_id=fac_map[f_code],
-                course_id=course_map[c_code],
-                section_id=sec_map[s_code],
-                room_id=None, # To be solved
-                timeslot_id=None # To be solved
-            )
-            self.db.add(new_assign)
-            count += 1
+            if s_code not in sec_map:
+                logs.append(f"[Error] Assignment skipped: Unknown section '{s_code}'")
+                continue
+            
+            if c_code not in course_map:
+                logs.append(f"[Error] Assignment skipped: Unknown course '{c_code}'")
+                continue
+            
+            # Check for existing assignment to avoid duplicates
+            existing_list = self.db.execute(
+                select(Assignment).where(
+                    Assignment.faculty_id == fac_id,
+                    Assignment.course_id == course_map[c_code],
+                    Assignment.section_id == sec_map[s_code]
+                )
+            ).scalars().all()
+
+            if not existing_list:
+                new_assign = Assignment(
+                    faculty_id=fac_id,
+                    course_id=course_map[c_code],
+                    section_id=sec_map[s_code]
+                )
+                self.db.add(new_assign)
+                count += 1
+            elif len(existing_list) > 1:
+                # Remove duplicates, keep only one
+                logs.append(f"[Warning] Removing {len(existing_list)-1} duplicate assignments for {f_code}-{c_code}-{s_code}")
+                for dup in existing_list[1:]:
+                    self.db.delete(dup)
             
         self.db.commit()
         return count, logs

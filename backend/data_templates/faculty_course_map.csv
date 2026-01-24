@@ -1,4 +1,11 @@
 faculty_email,section_id
-alice@uni.edu,CS101-Morning
-alice@uni.edu,Lab-CS101-1
-bob@uni.edu,CS101-Afternoon
+F_DAROS@college.edu,CSE_2A-DBMS
+F_DAROS@college.edu,CSE_2A-DBMS_LAB
+F_SHARMA@college.edu,CSE_2B-OS
+F_SHARMA@college.edu,CSE_2B-OS_LAB
+F_GUPTA@college.edu,CSE_3A-ML
+F_MEHTA@college.edu,AIML_2A-DBMS
+F_MEHTA@college.edu,AIML_2A-DBMS_LAB
+F_VERMA@college.edu,AIML_2B-OS
+F_VERMA@college.edu,AIML_2B-OS_LAB
+F_GUPTA@college.edu,AIML_3A-ML

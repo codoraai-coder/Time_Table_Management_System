@@ -1,4 +1,6 @@
 name,type
-Lecture-Hall-A,Lecture
-Lab-201,Lab
-Seminar-Room-1,Lecture
+AB_101,Lecture
+AB_102,Lecture
+AB_103,Lecture
+LAB_1,Lab
+LAB_2,Lab

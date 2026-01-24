@@ -1,4 +1,11 @@
-id,course_code,student_count,room_type
-CS101-Morning,CS101,35,Lecture
-CS101-Afternoon,CS101,30,Lecture
-Lab-CS101-1,CS101,25,Lab
+id,course_code,student_count,room_type,shift
+CSE_2A-DBMS,DBMS,60,Lecture,SHIFT_8_4
+CSE_2A-DBMS_LAB,DBMS_LAB,60,Lab,SHIFT_8_4
+CSE_2B-OS,OS,58,Lecture,SHIFT_8_4
+CSE_2B-OS_LAB,OS_LAB,58,Lab,SHIFT_8_4
+CSE_3A-ML,ML,62,Lecture,SHIFT_8_4
+AIML_2A-DBMS,DBMS,52,Lecture,SHIFT_10_6
+AIML_2A-DBMS_LAB,DBMS_LAB,52,Lab,SHIFT_10_6
+AIML_2B-OS,OS,55,Lecture,SHIFT_10_6
+AIML_2B-OS_LAB,OS_LAB,55,Lab,SHIFT_10_6
+AIML_3A-ML,ML,50,Lecture,SHIFT_10_6

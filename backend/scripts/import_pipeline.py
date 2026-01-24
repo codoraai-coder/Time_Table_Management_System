@@ -80,11 +80,15 @@ def run_pipeline(data_dir: str):
         s_count, s_logs = importer.process_sections(data["sections"], mock=mock_mode)
         for log in s_logs: print(f"  • {log}")
         
+        m_count, m_logs = importer.process_assignments(data["faculty_course_map"], mock=mock_mode)
+        for log in m_logs: print(f"  • {log}")
+        
         print("\n--- Summary ---")
         print(f"  [ok] Faculty processed: {f_count}")
         print(f"  [ok] Courses processed: {c_count}")
         print(f"  [ok] Rooms processed:   {r_count}")
         print(f"  [ok] Sections processed: {s_count}")
+        print(f"  [ok] Assignments processed: {m_count}")
         
         print(f"\n[DONE] {'Mock ' if mock_mode else ''}Success! Pipeline Complete.")
         
