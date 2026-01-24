@@ -20,6 +20,14 @@ class TimetableManager:
         self.db = db
         self.solver = SolverService()
         self.validator = ValidatorService()
+        self.time_config = self._load_time_config()
+    
+    def _load_time_config(self) -> dict:
+        try:
+            with open('data_templates/time_config.json', 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return {"shifts": []}
 
     def generate_timetable(self, version_number: int = 1, target_section_names: Optional[List[str]] = None) -> Optional[TimetableVersion]:
         """
@@ -93,16 +101,17 @@ class TimetableManager:
                 room_type_required=c_model.needs_room_type,
                 required_periods=req_periods,
                 allowed_slot_ids=allowed_slots,
+                student_count=s_model.student_count,
                 is_lab=is_lab,
                 fixed_assignments=fixed_data
             ))
 
-        solver_rooms = [SolverRoom(id=r.id, name=r.code, type=r.type) for r in rooms]
+        solver_rooms = [SolverRoom(id=r.id, name=r.code, type=r.type, capacity=r.capacity) for r in rooms]
         solver_slots = [SolverTimeslot(id=t.id, day=t.day, start_time=str(t.start_time), end_time=str(t.end_time)) for t in timeslots]
 
         # 4. Run Solver
         print(f"🧩 Solving for {len(solver_sections)} assignments...")
-        result = self.solver.solve(solver_sections, solver_rooms, solver_slots)
+        result = self.solver.solve(solver_sections, solver_rooms, solver_slots, self.time_config)
 
         if not result.is_feasible:
             print(f"❌ Timetable Generation Failed: {result.status} (Reason: {result.conflict_reason})")
