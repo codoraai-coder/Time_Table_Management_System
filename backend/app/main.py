@@ -43,10 +43,10 @@ async def health_check():
 
 
 # Import routers here
-# Import routers here
-from app.routes import normalization, upload
+from app.routes import normalization, upload, verification
 app.include_router(normalization.router)
 app.include_router(upload.router, prefix="/api/upload", tags=["Upload"])
+app.include_router(verification.router, prefix="/api/verify", tags=["Verification"])
 # from app.routes import upload, schedule, conflicts, admin
 # app.include_router(upload.router, prefix="/api/upload", tags=["Upload"])
 # app.include_router(schedule.router, prefix="/api/schedule", tags=["Schedule"])
