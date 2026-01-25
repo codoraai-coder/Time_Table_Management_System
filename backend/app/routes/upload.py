@@ -1,9 +1,41 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from typing import Dict, Any
+from typing import Dict, Any, List
 from app.services.validator_row import ValidationService
+import uuid
 
 router = APIRouter()
 validator = ValidationService()
+
+@router.post("/")
+async def upload_files(
+    files: List[UploadFile] = File(...)
+) -> Dict[str, Any]:
+    """
+    Handle Generic File Upload (Zip or multiple CSVs).
+    Currently mocks the processing and validation for demonstration.
+    """
+    # In a real implementation:
+    # 1. Save zip / files to temp dir
+    # 2. Extract if zip
+    # 3. Validate each required file
+    # 4. Return aggregated results
+    
+    upload_id = str(uuid.uuid4())
+    
+    # Mock Validation Logic based on filenames
+    details = {
+        "files_received": [f.filename for f in files],
+        "status": "processed",
+        "warnings": [],
+        "errors": []
+    }
+    
+    return {
+        "status": "success",
+        "upload_id": upload_id,
+        "message": "Files uploaded and processed successfully",
+        "details": details
+    }
 
 @router.post("/validate/{file_type}")
 async def validate_file(

@@ -1,10 +1,11 @@
 // API Types for Codora Timetable
 
 export interface UploadResponse {
-  upload_id: string;
-  files_received: string[];
+  upload_id?: string;
   status: 'success' | 'error';
-  message?: string;
+  message: string;
+  validation_errors?: ValidationMessage[]; // Assuming ValidationError is ValidationMessage
+  details?: any; // For flexible backend validation details
 }
 
 export interface ValidationMessage {

@@ -90,13 +90,12 @@ export default function FileUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative rounded-3xl border-3 border-dashed p-16 text-center transition-all duration-300 ${
-          isDragOver
+        className={`relative rounded-3xl border-3 border-dashed p-16 text-center transition-all duration-300 ${isDragOver
             ? 'border-indigo-500 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 shadow-2xl'
             : disabled
-            ? 'border-gray-200 bg-gray-50 dark:bg-gray-800 cursor-not-allowed'
-            : 'border-indigo-300 dark:border-indigo-700 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 hover:border-indigo-500 hover:shadow-xl cursor-pointer'
-        }`}
+              ? 'border-gray-200 bg-gray-50 dark:bg-gray-800 cursor-not-allowed'
+              : 'border-indigo-300 dark:border-indigo-700 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 hover:border-indigo-500 hover:shadow-xl cursor-pointer'
+          }`}
       >
         <input
           type="file"
@@ -147,7 +146,7 @@ export default function FileUploader({
               <div className="text-2xl animate-pulse">✅</div>
               <p className="text-lg font-semibold">Selected Files</p>
             </div>
-            <Button onClick={clearFiles} variant="destructive" size="sm">
+            <Button onClick={clearFiles} variant="danger" size="sm">
               Clear All
             </Button>
           </div>
