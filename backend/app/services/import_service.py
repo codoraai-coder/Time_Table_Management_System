@@ -199,6 +199,21 @@ class ImportService:
             self.db.commit()
         return count, logs
 
+    def validate_room_capacities(self) -> Tuple[bool, List[str]]:
+        sections = self.db.execute(select(Section)).scalars().all()
+        rooms = self.db.execute(select(Room)).scalars().all()
+        logs = []
+        violations = []
+        
+        for section in sections:
+            matching_rooms = [r for r in rooms if section.student_count <= r.capacity]
+            if not matching_rooms:
+                violation = f"Section {section.code} ({section.student_count} students) - No room with sufficient capacity"
+                violations.append(violation)
+                logs.append(f"[FAIL] {violation}")
+        
+        return len(violations) == 0, logs
+
     def process_assignments(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
         """Imports faculty assignments (Faculty-Course-Section map)."""
         count = 0
