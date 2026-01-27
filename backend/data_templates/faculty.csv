@@ -1,6 +1,21 @@
-id,name,email
-F_DAROS,M. DA ROS,F_DAROS@college.edu
-F_SHARMA,A. SHARMA,F_SHARMA@college.edu
-F_GUPTA,R. GUPTA,F_GUPTA@college.edu
-F_MEHTA,S. MEHTA,F_MEHTA@college.edu
-F_VERMA,P. VERMA,F_VERMA@college.edu
+code,name,email
+FAC_001,Dr. Raj Kumar,raj@college.edu
+FAC_002,Dr. Priya Singh,priya@college.edu
+FAC_003,Prof. Amit Patel,amit@college.edu
+FAC_004,Dr. Neha Sharma,neha@college.edu
+FAC_005,Prof. Vikram Das,vikram@college.edu
+FAC_006,Dr. Sunita Verma,sunita@college.edu
+FAC_007,Prof. Rohit Kumar,rohit@college.edu
+FAC_008,Dr. Maya Reddy,maya@college.edu
+FAC_009,Prof. Anil Gupta,anil@college.edu
+FAC_010,Dr. Kavita Joshi,kavita.joshi@college.edu
+FAC_011,Dr. Sandeep Rao,sandeep.rao@college.edu
+FAC_012,Dr. Meera Iyer,meera.iyer@college.edu
+FAC_013,Dr. Arjun Menon,arjun.menon@college.edu
+FAC_014,Dr. Priyanka Nair,priyanka.nair@college.edu
+FAC_015,Dr. Rohit Sharma,rohit.sharma@college.edu
+FAC_016,Dr. Geeta Sinha,geeta.sinha@college.edu
+FAC_017,Dr. Vikash Kapoor,vikash.kapoor@college.edu
+FAC_018,Dr. Anuja Desai,anuja.desai@college.edu
+FAC_019,Dr. Manish Verma,manish.verma@college.edu
+FAC_020,Dr. Reena Bhat,reena.bhat@college.edu
