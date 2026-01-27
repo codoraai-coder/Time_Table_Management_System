@@ -22,6 +22,7 @@ class SolverSection:
     room_type_required: str  # 'Lecture' or 'Lab'
     required_periods: int
     allowed_slot_ids: List[int]
+    student_count: int = 0
     is_lab: bool = False
     fixed_assignments: Optional[List[Dict[str, int]]] = None # List of {"room_id": int, "timeslot_id": int}
 
@@ -30,6 +31,7 @@ class SolverRoom:
     id: int
     name: str
     type: str  # 'Lecture' or 'Lab'
+    capacity: int = 30
 
 @dataclass
 class SolverTimeslot:
@@ -60,7 +62,8 @@ class SolverService:
         self,
         sections: List[SolverSection],
         rooms: List[SolverRoom],
-        timeslots: List[SolverTimeslot]
+        timeslots: List[SolverTimeslot],
+        time_config: Optional[Dict[str, Any]] = None
     ) -> SolverResult:
         if not _ORTOOLS_AVAILABLE:
             return self._solve_fallback(sections, rooms, timeslots)
@@ -92,6 +95,14 @@ class SolverService:
                         )
 
         # 2. Hard Constraints
+
+        # C0: Room Capacity Constraint
+        for section in sections:
+            for room in rooms:
+                if section.room_type_required != room.type:
+                    continue
+                if section.student_count > room.capacity:
+                    return SolverResult(False, "INFEASIBLE", [], f"Section {section.name} ({section.student_count} students) exceeds room {room.name} capacity ({room.capacity})")
 
         # C1: Every period of every section must be assigned exactly once
         for section in sections:
@@ -209,6 +220,30 @@ class SolverService:
                 if section_day_vars:
                     self.model.Add(sum(section_day_vars) <= 2)
 
+        # C6: Lunch Break Avoidance for Labs
+        if time_config:
+            shifts = time_config.get("shifts", [])
+            shift_to_lunch = {}
+            for shift_cfg in shifts:
+                shift_name = shift_cfg.get("name", "")
+                lunch_data = shift_cfg.get("lunch", {})
+                if lunch_data:
+                    shift_to_lunch[shift_name] = (lunch_data.get("start"), lunch_data.get("end"))
+            
+            for section in sections:
+                if not section.is_lab:
+                    continue
+                shift_name = "Morning Shift" if "8" in section.name or "8_4" in section.name else "Evening Shift"
+                if shift_name not in shift_to_lunch:
+                    continue
+                lunch_start, lunch_end = shift_to_lunch[shift_name]
+                lunch_slots = [t.id for t in timeslots if self._time_in_range(t.start_time, t.end_time, lunch_start, lunch_end)]
+                for p_idx in range(section.required_periods):
+                    for room in rooms:
+                        for slot_id in lunch_slots:
+                            if (section.id, p_idx, room.id, slot_id) in x:
+                                self.model.Add(x[(section.id, p_idx, room.id, slot_id)] == 0)
+
         # 3. Solve
         status = self.solver.Solve(self.model)
 
@@ -224,6 +259,17 @@ class SolverService:
             return SolverResult(True, "FEASIBLE", result_assignments)
         else:
             return SolverResult(False, "INFEASIBLE", [], "Conflicts detected (No solution found)")
+
+    def _time_in_range(self, slot_start: str, slot_end: str, range_start: str, range_end: str) -> bool:
+        slot_s = self._time_to_minutes(slot_start)
+        slot_e = self._time_to_minutes(slot_end)
+        r_start = self._time_to_minutes(range_start)
+        r_end = self._time_to_minutes(range_end)
+        return slot_s >= r_start and slot_e <= r_end
+    
+    def _time_to_minutes(self, time_str: str) -> int:
+        h, m = map(int, time_str.split(":"))
+        return h * 60 + m
 
     def _solve_fallback(self, sections, rooms, timeslots) -> SolverResult:
         """

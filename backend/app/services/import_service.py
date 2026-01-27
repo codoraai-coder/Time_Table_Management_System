@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.models import Faculty, Course, Room, Section
 from app.services.validator import ValidationResult
+from app.services.data_integrity_verifier import DataIntegrityVerifier
+from app.services.normalization_verifier import NormalizationVerifier
 
 class ImportService:
     """
@@ -207,6 +209,21 @@ class ImportService:
             self.db.commit()
         return count, logs
 
+    def validate_room_capacities(self) -> Tuple[bool, List[str]]:
+        sections = self.db.execute(select(Section)).scalars().all()
+        rooms = self.db.execute(select(Room)).scalars().all()
+        logs = []
+        violations = []
+        
+        for section in sections:
+            matching_rooms = [r for r in rooms if section.student_count <= r.capacity]
+            if not matching_rooms:
+                violation = f"Section {section.code} ({section.student_count} students) - No room with sufficient capacity"
+                violations.append(violation)
+                logs.append(f"[FAIL] {violation}")
+        
+        return len(violations) == 0, logs
+
     def process_assignments(self, items: List[Dict[str, Any]], mock: bool = False) -> Tuple[int, List[str]]:
         """Imports faculty assignments (Faculty-Course-Section map)."""
         count = 0
@@ -275,4 +292,28 @@ class ImportService:
                     self.db.delete(dup)
 
         self.db.commit()
+    
+    def verify_imported_data(self) -> Dict[str, Any]:
+        verifier = DataIntegrityVerifier()
+        
+        faculty_data = [{"id": f.id, "name": f.name, "email": f.email} for f in self.db.query(Faculty).all()]
+        course_data = [{"code": c.code, "name": c.name, "credits": c.weekly_periods} for c in self.db.query(Course).all()]
+        room_data = [{"room_id": r.id, "capacity": r.capacity} for r in self.db.query(Room).all()]
+        section_data = [{"id": s.id, "student_count": s.student_count} for s in self.db.query(Section).all()]
+        
+        data = {
+            "faculty": faculty_data,
+            "courses": course_data,
+            "rooms": room_data,
+            "sections": section_data,
+            "faculty_course_map": []
+        }
+        
+        integrity_report = verifier.verify_all(data)
+        return {
+            "is_healthy": integrity_report.is_healthy,
+            "score": integrity_report.overall_score,
+            "issues": integrity_report.issues,
+            "summary": integrity_report.summary
+        }
         return count, logs
