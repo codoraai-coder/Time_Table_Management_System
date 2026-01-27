@@ -80,6 +80,26 @@ class TimetableManager:
                 else:
                     allowed_slots.append(t.id)
 
+            # Enforce lunch as a hard empty slot per shift by removing that timeslot
+            # from allowed_slots so solver cannot assign into it.
+            try:
+                if s_model.shift == "SHIFT_8_4":
+                    lunch_time = time(12, 0)
+                elif s_model.shift == "SHIFT_10_6":
+                    lunch_time = time(13, 0)
+                else:
+                    lunch_time = None
+
+                if lunch_time is not None:
+                    # remove any timeslot that starts exactly at lunch_time
+                    lunch_ids = [t.id for t in timeslots if t.start_time == lunch_time]
+                    for lid in lunch_ids:
+                        if lid in allowed_slots:
+                            allowed_slots.remove(lid)
+            except Exception:
+                # conservative: if any issue, don't remove slots (avoid crashing generation)
+                pass
+
             # Lab detection and Period calculation
             is_lab = (c_model.type.upper() == "LAB")
             req_periods = 2 if is_lab else c_model.credits

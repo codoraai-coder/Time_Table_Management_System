@@ -4,3 +4,15 @@ AB_102,Lecture
 AB_103,Lecture
 LAB_1,Lab
 LAB_2,Lab
+code,type,capacity
+AB_101,Lecture,60
+AB_102,Lecture,60
+AB_103,Lecture,60
+LAB_1,Lab,30
+LAB_2,Lab,30
+name,type
+AB_101,Lecture
+AB_102,Lecture
+AB_103,Lecture
+LAB_1,Lab
+LAB_2,Lab

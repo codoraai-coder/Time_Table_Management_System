@@ -1,62 +1,87 @@
 # How It Works
+# How It Works
 
-This document explains exactly how data flows through the backend to achieve our goal of generating a conflict-free timetable.
+This document describes the backend pipeline and quick test steps for generating and exporting timetables.
 
-## 🔄 The Correct Workflow
-Your understanding was close, but the **Database** actually acts as the "Storage" between the input and the solver. Here is the actual path:
+Key export invariants:
+- Every section's Excel sheet always contains these slots: `08:00-09:00`, `09:00-10:00`, `16:00-17:00`, `17:00-18:00` (left empty if unused).
+- Lunch break is inserted as an empty slot per section shift: `12:00-13:00` for the 08:00–16:00 shift; `13:00-14:00` for the 10:00–18:00 shift.
 
-### Stage 1: The Input (Ingestion)
-1. **Raw Files**: Data starts as CSV/JSON files (located in `data_templates` or uploaded).
-2. **Validation (`ValidatorService`)**: First, we check if the files are broken. We catch errors **before** they even touch our logic.
-3. **Normalization (`ImportService`)**: This is where we clean the "Human" mess (extra spaces, typos, mixed casing).
-4. **Persistence (PostgreSQL)**: The cleaned, normalized data is saved into your database.
+## Workflow (ingest → generate → export)
 
-### Stage 2: The Output (Generation)
-5. **Data Retrieval**: The `generate_v1.py` script (via the `TimetableManager`) pulls the **cleaned** data *out* of the database.
-6. **The Solver (`SolverService`)**: The Manager hands this data to the OR-Tools solver. Because the data was normalized in Stage 1, the solver sees perfect, unambiguous IDs.
-7. **JSON Output**: The solver calculates the schedule and returns a structured JSON "Snapshot" which is saved as a `TimetableVersion`.
+1. Place CSV input files into `backend/rawData/` (use `backend/data_templates/` as reference).
+2. Validate and import the CSVs into the database:
 
----
-
-## 🗺️ Visual Flow
-```mermaid
-graph TD
-    A[CSV/JSON Files] --> B[ValidatorService]
-    B -->|Check Passed| C[ImportService]
-    C -->|Normalization| D[(PostgreSQL DB)]
-    D --> E[TimetableManager]
-    E --> F[Solver Engine]
-    F -->|Conflict-Free| G[JSON Result / Snapshot]
+```bash
+python backend/scripts/import_pipeline.py <folder with data/>
 ```
 
----
+3. Generate a timetable using the normalized DB data (creates standard timeslots if missing):
 
-## 📊 Sample Workflow Output
-When you run the pipeline, you will see this transformation:
+```bash
+python backend/scripts/generate.py
+```
 
-**1. Messy Input (CSV):**
-`"  dr. smith ", cs101`
+4. Export a specific timetable version to Excel (post-processing merges two-hour LAB cells):
 
-**2. Normalization Log:**
-`• [Faculty] Trimming '  dr. smith ' -> 'dr. smith' (Email: SMITH@UNI.EDU)`
+```bash
+python backend/scripts/export.py <version_id>
+```
 
-**3. Solver Output (JSON):**
+Notes:
+- The exporter module is `backend/app/services/excel_exporter.py` and always renders the full 08:00–18:00 grid per section; `export.py` additionally post-processes to merge adjacent LAB columns when appropriate.
+- Do not run `reset_db.py` on production; it is a development helper.
+
+## Quick test steps
+
+- Populate `backend/rawData/` with the sample CSVs from `backend/data_templates/`.
+- Run the three scripts above in order: `import_pipeline.py rawData/`, `generate.py`, `export.py 1`.
+- Open the produced `timetable_v1.xlsx` to verify:
+  - All required slots exist (including the four specified slots).
+  - Lunch break slots are empty for each section according to its shift.
+  - LAB sessions spanning two hours are merged in the exported sheet.
+
+## Visual flow
+
+```mermaid
+graph TD
+  A[rawData CSVs] --> B[ValidatorService]
+  B --> C[ImportService]
+  C --> D[(PostgreSQL DB)]
+  D --> E[TimetableManager]
+  E --> F[Solver Engine]
+  F --> G[TimetableVersion (snapshot)]
+  G --> H[Excel Export]
+```
+
+## Example (normalization → solver output)
+
+Input CSV row (messy):
+
+```
+"  dr. smith ", CS101
+```
+
+Normalization log (example):
+
+```
+[Faculty] Trimming '  dr. smith ' -> 'dr. smith' (email normalized)
+```
+
+Solver JSON (example snapshot):
+
 ```json
 {
   "version": 1,
   "status": "FEASIBLE",
   "assignments": [
     {
+      "section": "CS-2024-A",
       "faculty": "dr. smith",
       "course": "CS101",
       "room": "Room-101",
-      "slot": "Monday 09:00"
+      "timeslot": "Monday 09:00-10:00"
     }
   ]
 }
 ```
-
----
-
-## 💡 Key Concept
-The **Database** is our "Source of Truth." We never allow "Dirty" data into the database. By the time the Solver runs, it is working with the highest quality data possible.

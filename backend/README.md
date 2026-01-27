@@ -78,3 +78,35 @@ If a user uploads a broken CSV, the **ValidatorService** outputs clear instructi
 2. **Setup**: Run `pip install -r requirements.txt`.
 3. **Database**: Configure `DATABASE_URL` in your `.env` file.
 4. **Test**: Run `python tests/test_solver_logic.py` to verify the engine.
+
+## ⚙️ CLI Scripts (ingest → generate → export)
+Run the pipeline in four steps after preparing your CSVs in `backend/rawData/`:
+
+1. Put your input CSV files into `backend/rawData/`.
+2. Import and normalize the data:
+
+```bash
+python backend/scripts/import_pipeline.py rawData/
+```
+
+3. Generate a timetable (uses the normalized DB data):
+
+```bash
+python backend/scripts/generate.py
+```
+
+4. Export a timetable version to Excel (post-processes LAB merges):
+
+```bash
+python backend/scripts/export.py 1
+```
+---
+# Output generated on the testing data
+![alt text](image.png)
+![alt text](image-1.png)
+
+
+Notes:
+- The Excel exporter implementation is at `backend/app/services/excel_exporter.py`.
+- `export.py` post-processes the workbook to merge adjacent LAB cells (two-hour labs).
+- Ensure your `.env` has `DATABASE_URL` and your virtualenv is activated before running scripts.

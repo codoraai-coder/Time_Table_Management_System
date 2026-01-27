@@ -1,0 +1,1014 @@
+{
+  "version": 1,
+  "status": "FEASIBLE",
+  "sections": {
+    "SEC_2A": {
+      "Monday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "IoT Lab",
+          "course_code": "BCSE1526",
+          "faculty": "Prof. Anil Gupta",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "IoT Lab",
+          "course_code": "BCSE1526",
+          "faculty": "Prof. Anil Gupta",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Tuesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Full Stack Lab",
+          "course_code": "BCSC0811",
+          "faculty": "Dr. Maya Reddy",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Full Stack Lab",
+          "course_code": "BCSC0811",
+          "faculty": "Dr. Maya Reddy",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        }
+      ],
+      "Wednesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "DSA Lab",
+          "course_code": "BCSC081",
+          "faculty": "Prof. Rohit Kumar",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "DSA Lab",
+          "course_code": "BCSC081",
+          "faculty": "Prof. Rohit Kumar",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Thursday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "CO Lab",
+          "course_code": "BCSC0804",
+          "faculty": "Dr. Sunita Verma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "CO Lab",
+          "course_code": "BCSC0804",
+          "faculty": "Dr. Sunita Verma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Friday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        }
+      ]
+    },
+    "SEC_2B": {
+      "Monday": [
+        {
+          "time": "09:00 - 10:00",
+          "course": "IoT Lab",
+          "course_code": "BCSE1526",
+          "faculty": "Prof. Anil Gupta",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "10:00 - 11:00",
+          "course": "IoT Lab",
+          "course_code": "BCSE1526",
+          "faculty": "Prof. Anil Gupta",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Tuesday": [
+        {
+          "time": "08:00 - 09:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "09:00 - 10:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "10:00 - 11:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Wednesday": [
+        {
+          "time": "08:00 - 09:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "09:00 - 10:00",
+          "course": "Full Stack Lab",
+          "course_code": "BCSC0811",
+          "faculty": "Dr. Maya Reddy",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "10:00 - 11:00",
+          "course": "Full Stack Lab",
+          "course_code": "BCSC0811",
+          "faculty": "Dr. Maya Reddy",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "13:00 - 14:00",
+          "course": "DSA Lab",
+          "course_code": "BCSC081",
+          "faculty": "Prof. Rohit Kumar",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "DSA Lab",
+          "course_code": "BCSC081",
+          "faculty": "Prof. Rohit Kumar",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Thursday": [
+        {
+          "time": "09:00 - 10:00",
+          "course": "CO Lab",
+          "course_code": "BCSC0804",
+          "faculty": "Dr. Sunita Verma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "10:00 - 11:00",
+          "course": "CO Lab",
+          "course_code": "BCSC0804",
+          "faculty": "Dr. Sunita Verma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "13:00 - 14:00",
+          "course": "Internet of Things",
+          "course_code": "BCSE1507",
+          "faculty": "Prof. Vikram Das",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Data Structures & Algorithms",
+          "course_code": "BCSC0021",
+          "faculty": "Dr. Raj Kumar",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Mathematics",
+          "course_code": "BCSC1010",
+          "faculty": "Prof. Amit Patel",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Friday": [
+        {
+          "time": "14:00 - 15:00",
+          "course": "Full Stack Development",
+          "course_code": "BCSE1506",
+          "faculty": "Dr. Neha Sharma",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Computer Organization",
+          "course_code": "BCSC1005",
+          "faculty": "Dr. Priya Singh",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        }
+      ]
+    },
+    "SEC_2CA": {
+      "Monday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Lab 5",
+          "course_code": "LAB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Lab 5",
+          "course_code": "LAB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Lab 4",
+          "course_code": "LAB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "LAB_02",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Lab 4",
+          "course_code": "LAB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "LAB_02",
+          "room_type": "LAB"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Lab 3",
+          "course_code": "LAB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Lab 3",
+          "course_code": "LAB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        }
+      ],
+      "Tuesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Lab 1",
+          "course_code": "LAB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Lab 1",
+          "course_code": "LAB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Wednesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Thursday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Friday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Lab 2",
+          "course_code": "LAB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Lab 2",
+          "course_code": "LAB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        }
+      ]
+    },
+    "SEC_2CB": {
+      "Monday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Lab 4",
+          "course_code": "LAB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Lab 4",
+          "course_code": "LAB_4",
+          "faculty": "Dr. Geeta Sinha",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "CR_007",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Tuesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Lab 2",
+          "course_code": "LAB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Lab 2",
+          "course_code": "LAB_2",
+          "faculty": "Dr. Meera Iyer",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Lab 1",
+          "course_code": "LAB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Lab 1",
+          "course_code": "LAB_1",
+          "faculty": "Dr. Kavita Joshi",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Wednesday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "CR_001",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_006",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Thursday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Lab 5",
+          "course_code": "LAB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Lab 5",
+          "course_code": "LAB_5",
+          "faculty": "Dr. Anuja Desai",
+          "room": "LAB_01",
+          "room_type": "LAB"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Advanced Mathematics",
+          "course_code": "MA_ADV",
+          "faculty": "Dr. Reena Bhat",
+          "room": "CR_005",
+          "room_type": "LECTURE"
+        }
+      ],
+      "Friday": [
+        {
+          "time": "10:00 - 11:00",
+          "course": "Subject 2",
+          "course_code": "SUB_2",
+          "faculty": "Dr. Arjun Menon",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "11:00 - 12:00",
+          "course": "Subject 3",
+          "course_code": "SUB_3",
+          "faculty": "Dr. Rohit Sharma",
+          "room": "CR_003",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "12:00 - 13:00",
+          "course": "Subject 5",
+          "course_code": "SUB_5",
+          "faculty": "Dr. Manish Verma",
+          "room": "CR_002",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "14:00 - 15:00",
+          "course": "Subject 4",
+          "course_code": "SUB_4",
+          "faculty": "Dr. Vikash Kapoor",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "15:00 - 16:00",
+          "course": "Subject 1",
+          "course_code": "SUB_1",
+          "faculty": "Dr. Sandeep Rao",
+          "room": "CR_004",
+          "room_type": "LECTURE"
+        },
+        {
+          "time": "16:00 - 17:00",
+          "course": "Lab 3",
+          "course_code": "LAB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        },
+        {
+          "time": "17:00 - 18:00",
+          "course": "Lab 3",
+          "course_code": "LAB_3",
+          "faculty": "Dr. Priyanka Nair",
+          "room": "LAB_06",
+          "room_type": "LAB"
+        }
+      ]
+    }
+  }
+}

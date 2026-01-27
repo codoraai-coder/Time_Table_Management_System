@@ -56,3 +56,4 @@ rawData/
 # Local Uploads
 uploads/
 tmp/
+*.xlsx

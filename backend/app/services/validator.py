@@ -18,11 +18,11 @@ class ValidatorService:
     # Format: entity -> list of required column groups (each group has alternatives)
     # A valid file must have at least one column from each group
     REQUIRED_HEADERS = {
-        "faculty": [["id", "faculty_id"], ["name"]],  # email is optional (rawData doesn't have it)
+        "faculty": [["id", "faculty_id", "code"], ["name"]],  # email is optional (rawData doesn't have it)
         "courses": [["code", "course_id"], ["name"], ["credits", "weekly_periods"]],
-        "rooms": [["room_id"], ["capacity"], ["room_type", "type"]],
-        "sections": [["id", "section_id"], ["student_count"]],  # course_code and room_type are optional
-        "faculty_course_map": [["faculty_email", "faculty_id"], ["section_id"], ["course_id"]]  # course_id is required in rawData format
+        "rooms": [["room_id", "code"], ["capacity"], ["room_type", "type"]],
+        "sections": [["id", "section_id", "code"], ["student_count"]],  # course_code and room_type are optional
+        "faculty_course_map": [["faculty_email", "faculty_id", "faculty_code"], ["section_id", "code", "section"], ["course_id", "course_code"]]  # course_id is required in rawData format
     }
 
     def _find_column(self, row: Dict[str, Any], acceptable_names: List[str]) -> str:
