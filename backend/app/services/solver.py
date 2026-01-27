@@ -1,5 +1,6 @@
 from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass
+from datetime import time as _time
 
 try:
     from ortools.sat.python import cp_model
@@ -228,55 +229,196 @@ class SolverService:
         """
         Pure Python backtracking solver for local debugging/testing without OR-Tools.
         """
-        assignments = {} # section_id -> (room_id, slot_id)
+        # Improved fallback that supports multi-period assignments per section,
+        # consecutive 2-hour lab placements, lunch-slot blocking, and all
+        # basic conflict constraints (room, faculty, section-group/day limits).
 
-        # Group sections by faculty for fast lookup
-        sections_by_faculty = {}
-        for s in sections:
-            if s.faculty_id not in sections_by_faculty: sections_by_faculty[s.faculty_id] = []
-            sections_by_faculty[s.faculty_id].append(s)
+        # Helpers / metadata
+        slot_map = {(t.day, t.start_time): t.id for t in timeslots}
+        next_slot_lookup = {}
+        slot_by_id = {t.id: t for t in timeslots}
+        for t in timeslots:
+            following_slot_id = slot_map.get((t.day, t.end_time))
+            if following_slot_id:
+                next_slot_lookup[t.id] = following_slot_id
 
-        def is_valid(section, room, slot):
-            # 1. Type
-            if section.room_type_required != room.type: return False
-            
-            # 2. Room Conflict
-            for s_id, (r_id, sl_id) in assignments.items():
-                if r_id == room.id and sl_id == slot.id:
+        # Identify lunch start times to avoid scheduling into them (global conservative block)
+        # Use time objects for robust comparisons
+        lunch_starts = set([_time(12, 0), _time(13, 0)])
+
+        # assignments: (section_id, period_index) -> (room_id, slot_id)
+        assignments = {}
+
+        # Quick helper maps for conflict checks
+        room_slot_map = {}       # (room_id, slot_id) -> (section_id, p_idx)
+        faculty_slot_map = {}    # (faculty_id, slot_id) -> list of (section_id, p_idx)
+        group_slot_map = {}      # (group_id, slot_id) -> list
+        # track per-section per-day counts for non-lab subjects
+        section_day_count = {}   # (section_id, day) -> count
+
+        # Build a mapping for fast lookup of section objects by id
+        sections_by_id = {s.id: s for s in sections}
+
+        def _slot_time_obj(slot):
+            # slot.start_time may be a string or a time object
+            st = slot.start_time
+            if isinstance(st, str):
+                try:
+                    return _time.fromisoformat(st)
+                except Exception:
+                    # Fallback: try HH:MM
+                    parts = st.split(':')
+                    return _time(int(parts[0]), int(parts[1]))
+            if isinstance(st, _time):
+                return st
+            return _time(0, 0)
+
+
+        def can_place(section: SolverSection, room: SolverRoom, slot_id: int, p_idx: int) -> bool:
+            # Type match
+            if section.room_type_required != room.type:
+                return False
+
+            # Slot allowed for this section
+            if slot_id not in section.allowed_slot_ids:
+                return False
+
+            # Avoid lunch slots
+            sl = slot_by_id[slot_id]
+            sl_start = _slot_time_obj(sl)
+            if sl_start in lunch_starts:
+                return False
+
+            # Room conflict
+            if (room.id, slot_id) in room_slot_map:
+                return False
+
+            # Faculty conflict
+            fkey = (section.faculty_id, slot_id)
+            if fkey in faculty_slot_map and faculty_slot_map[fkey]:
+                return False
+
+            # Group (section_id) conflict: no two classes of same group at same slot
+            gkey = (section.section_id, slot_id)
+            if gkey in group_slot_map and group_slot_map[gkey]:
+                return False
+
+            # Daily subject limit: for non-lab subjects, max 2 periods per day per section
+            if not section.is_lab:
+                day = sl.day
+                ckey = (section.section_id, day)
+                existing = section_day_count.get(ckey, 0)
+                # If placing this period would exceed 2 for the day, disallow
+                if existing + 1 > 2:
                     return False
-            
-            # 4. Faculty Conflict
-            # Check other sections taught by same faculty
-            # If any are assigned to this same slot, conflict.
-            # (Note: simpler to just check all current assignments)
-            for s_id, (r_id, sl_id) in assignments.items():
-                # Find section object for s_id
-                assigned_sec = next((s for s in sections if s.id == s_id), None)
-                if assigned_sec and assigned_sec.faculty_id == section.faculty_id and sl_id == slot.id:
-                    return False
-            
+
             return True
 
-        def backtrack(section_index):
-            if section_index == len(sections):
-                return True # All assigned!
-            
-            section = sections[section_index]
-            
-            for room in rooms:
-                for slot in timeslots:
-                    if is_valid(section, room, slot):
-                        assignments[section.id] = (room.id, slot.id)
-                        if backtrack(section_index + 1):
-                            return True
-                        del assignments[section.id]
-            
-            return False
+        # Backtracking order: sort sections by descending required_periods (harder first)
+        order = sorted(sections, key=lambda s: (-s.required_periods, s.id))
 
-        if backtrack(0):
+        def backtrack(idx: int) -> bool:
+            if idx == len(order):
+                return True
+
+            section = order[idx]
+
+            # For labs with required_periods==2, we try to assign both periods together
+            if section.is_lab and section.required_periods == 2:
+                # Try all rooms of matching type
+                for room in rooms:
+                    if section.room_type_required != room.type: continue
+
+                    for slot_id in section.allowed_slot_ids:
+                        # slot_id must have a next consecutive slot on same day
+                        next_id = next_slot_lookup.get(slot_id)
+                        if not next_id: continue
+                        # Ensure next slot also allowed
+                        if next_id not in section.allowed_slot_ids: continue
+
+                        # Avoid lunch overlapping either slot
+                        s0 = slot_by_id[slot_id]
+                        s1 = slot_by_id[next_id]
+                        if s0.start_time in lunch_starts or s1.start_time in lunch_starts:
+                            continue
+
+                        # Check both slots available in room and faculty/group
+                        if not can_place(section, room, slot_id, 0):
+                            continue
+                        # For second period, check conflicts too
+                        if (room.id, next_id) in room_slot_map: continue
+                        if (section.faculty_id, next_id) in faculty_slot_map and faculty_slot_map[(section.faculty_id, next_id)]:
+                            continue
+                        if (section.section_id, next_id) in group_slot_map and group_slot_map[(section.section_id, next_id)]:
+                            continue
+
+                        # Place both
+                        assignments[(section.id, 0)] = (room.id, slot_id)
+                        assignments[(section.id, 1)] = (room.id, next_id)
+                        room_slot_map[(room.id, slot_id)] = (section.id, 0)
+                        room_slot_map[(room.id, next_id)] = (section.id, 1)
+                        faculty_slot_map.setdefault((section.faculty_id, slot_id), []).append((section.id, 0))
+                        faculty_slot_map.setdefault((section.faculty_id, next_id), []).append((section.id, 1))
+                        group_slot_map.setdefault((section.section_id, slot_id), []).append((section.id, 0))
+                        group_slot_map.setdefault((section.section_id, next_id), []).append((section.id, 1))
+
+                        # Labs count as 1 slot per day for daily-limit purposes (but they are skipped earlier)
+
+                        if backtrack(idx + 1):
+                            return True
+
+                        # Undo placement
+                        del assignments[(section.id, 0)]
+                        del assignments[(section.id, 1)]
+                        del room_slot_map[(room.id, slot_id)]
+                        del room_slot_map[(room.id, next_id)]
+                        faculty_slot_map[(section.faculty_id, slot_id)].pop()
+                        faculty_slot_map[(section.faculty_id, next_id)].pop()
+                        group_slot_map[(section.section_id, slot_id)].pop()
+                        group_slot_map[(section.section_id, next_id)].pop()
+
+                return False
+
+            # Non-lab or multi-period (treat each required_periods as separate p_idx placements)
+            # We will assign p_idx from 0..required_periods-1 sequentially
+            def assign_period(p_idx: int) -> bool:
+                if p_idx >= section.required_periods:
+                    # done with this section
+                    return backtrack(idx + 1)
+
+                for room in rooms:
+                    if section.room_type_required != room.type: continue
+                    for slot_id in section.allowed_slot_ids:
+                        if not can_place(section, room, slot_id, p_idx):
+                            continue
+
+                        # Place
+                        assignments[(section.id, p_idx)] = (room.id, slot_id)
+                        room_slot_map[(room.id, slot_id)] = (section.id, p_idx)
+                        faculty_slot_map.setdefault((section.faculty_id, slot_id), []).append((section.id, p_idx))
+                        group_slot_map.setdefault((section.section_id, slot_id), []).append((section.id, p_idx))
+                        day = slot_by_id[slot_id].day
+                        section_day_count[(section.section_id, day)] = section_day_count.get((section.section_id, day), 0) + 1
+
+                        if assign_period(p_idx + 1):
+                            return True
+
+                        # undo
+                        del assignments[(section.id, p_idx)]
+                        del room_slot_map[(room.id, slot_id)]
+                        faculty_slot_map[(section.faculty_id, slot_id)].pop()
+                        group_slot_map[(section.section_id, slot_id)].pop()
+                        section_day_count[(section.section_id, day)] -= 1
+
+                return False
+
+            return assign_period(0)
+
+        ok = backtrack(0)
+        if ok:
             result = []
-            for sec_id, (r_id, sl_id) in assignments.items():
+            for (sec_id, p_idx), (r_id, sl_id) in assignments.items():
                 result.append({"section_id": sec_id, "room_id": r_id, "timeslot_id": sl_id})
             return SolverResult(True, "FEASIBLE_PYTHON", result)
         else:
-            return SolverResult(False, "INFEASIBLE_PYTHON", [], "Constraints violated")
+            return SolverResult(False, "INFEASIBLE_PYTHON", [], "Constraints violated in fallback solver")

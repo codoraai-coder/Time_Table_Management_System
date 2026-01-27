@@ -17,6 +17,8 @@ load_dotenv()
 from app.services.timetable_manager import TimetableManager
 from app.core.database import SessionLocal
 from app.models import Timeslot, TimetableVersion
+import json
+import os
 
 def main():
     db = SessionLocal()
@@ -46,6 +48,17 @@ def main():
             print("[-] Solver failed to generate timetable")
             return False
         print(f"[OK] Timetable generated successfully!\n  Version ID: {timetable_version.id}")
+
+        # Dump the snapshot data that was stored in DB to a JSON file for inspection
+        try:
+            out_dir = os.path.join(os.path.dirname(__file__), '..')
+            out_dir = os.path.abspath(out_dir)
+            json_path = os.path.join(out_dir, f"timetable_v{timetable_version.id}.json")
+            with open(json_path, 'w', encoding='utf-8') as jf:
+                json.dump(timetable_version.snapshot_data, jf, ensure_ascii=False, indent=2, default=str)
+            print(f"[OK] Timetable snapshot written to: {json_path}")
+        except Exception as e:
+            print(f"[!] Failed to write timetable snapshot JSON: {e}")
         return True
     except Exception as e:
         print(f"[-] Error: {e}")

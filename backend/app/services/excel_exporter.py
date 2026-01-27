@@ -171,7 +171,13 @@ class ExcelExporterServiceV2:
                 )
                 # If this is the lunch break slot, always leave empty
                 if lunch_slot and time_slot == lunch_slot:
-                    cell.value = ""
+                    # If solver incorrectly placed an assignment at lunch, show it but warn.
+                    assignment = self._find_assignment_by_time(day_assignments, time_slot)
+                    if assignment:
+                        cell.value = f"{assignment.get('course_code', '')}\n{assignment.get('room', '')}"
+                        print(f"[WARN] Lunch slot occupied for section {section.code} on {day} at {time_slot}")
+                    else:
+                        cell.value = ""
                 else:
                     # Find assignment for this time slot
                     assignment = self._find_assignment_by_time(day_assignments, time_slot)
