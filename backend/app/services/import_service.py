@@ -292,7 +292,7 @@ class ImportService:
                     self.db.delete(dup)
 
         self.db.commit()
-    
+        return count, logs
     def verify_imported_data(self) -> Dict[str, Any]:
         verifier = DataIntegrityVerifier()
         
@@ -316,4 +316,3 @@ class ImportService:
             "issues": integrity_report.issues,
             "summary": integrity_report.summary
         }
-        return count, logs

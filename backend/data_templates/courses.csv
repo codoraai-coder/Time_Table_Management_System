@@ -1,6 +1,21 @@
-code,name,credits
-DBMS,Database Management Systems,4
-DBMS_LAB,Database Management Systems Lab,1
-OS,Operating Systems,4
-OS_LAB,Operating Systems Lab,1
-ML,Machine Learning,4
+code,name,type,credits
+BCSC0021,Data Structures & Algorithms,LECTURE,4
+BCSC1005,Computer Organization,LECTURE,3
+BCSC1010,Mathematics,LECTURE,4
+BCSE1506,Full Stack Development,LECTURE,3
+BCSE1507,Internet of Things,LECTURE,3
+BCSC0804,CO Lab,LAB,1
+BCSC081,DSA Lab,LAB,1
+BCSC0811,Full Stack Lab,LAB,1
+BCSE1526,IoT Lab,LAB,1
+Ma_Adv,Advanced Mathematics,LECTURE,5
+sub_1,Subject 1,LECTURE,4
+sub_2,Subject 2,LECTURE,4
+sub_3,Subject 3,LECTURE,4
+sub_4,Subject 4,LECTURE,4
+sub_5,Subject 5,LECTURE,4
+LAB_1,Lab 1,LAB,1
+LAB_2,Lab 2,LAB,1
+LAB_3,Lab 3,LAB,1
+LAB_4,Lab 4,LAB,1
+LAB_5,Lab 5,LAB,1
