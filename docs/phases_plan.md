@@ -163,13 +163,13 @@ Objective function:
 * Draft timetable
 * Conflict report
 * Feasibility explanation
+* **[ACCELERATED]** Basic Upload UI & Timetable Viewer
 
 At this point:
 ✅ Backend works
-❌ No UI
-❌ No AI
-
-That’s correct.
+✅ Basic UI works (Upload -> View)
+❌ No AI Agents yet
+❌ No Manual Changes yet
 
 ---
 
