@@ -25,6 +25,7 @@ class SolverSection:
     student_count: int = 0
     is_lab: bool = False
     fixed_assignments: Optional[List[Dict[str, int]]] = None # List of {"room_id": int, "timeslot_id": int}
+    forbidden_assignments: Optional[List[Dict[str, int]]] = None # List of {"room_id": int, "timeslot_id": int}
 
 @dataclass
 class SolverRoom:
@@ -130,6 +131,15 @@ class SolverService:
                     return SolverResult(False, "INFEASIBLE", [], f"Section {section.name} (Period {p_idx}) has no valid candidates.")
                 
                 self.model.Add(sum(candidates) == 1)
+
+        # C1.2: Forbidden Assignments
+        for section in sections:
+            if section.forbidden_assignments:
+                for fa in section.forbidden_assignments:
+                    for p_idx in range(section.required_periods):
+                        forbidden_key = (section.id, p_idx, fa["room_id"], fa["timeslot_id"])
+                        if forbidden_key in x:
+                            self.model.Add(x[forbidden_key] == 0)
 
         # C1.1: Lab Consecutive Periods (2 periods, same room, same day, consecutive time)
         for section in sections:
@@ -328,6 +338,16 @@ class SolverService:
             # Slot allowed for this section
             if slot_id not in section.allowed_slot_ids:
                 return False
+
+            # Forbidden assignments
+            if section.forbidden_assignments:
+                # If ANY period of this section lands in a forbidden slot/room, we reject.
+                # Simplified check for p_idx specific or general:
+                # The input structure is list of {room_id, timeslot_id}.
+                # We interpret this as: "You cannot be in this room at this time".
+                for fa in section.forbidden_assignments:
+                    if fa["room_id"] == room.id and fa["timeslot_id"] == slot_id:
+                        return False
 
             # Avoid lunch slots
             sl = slot_by_id[slot_id]
